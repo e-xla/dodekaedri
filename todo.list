@@ -1,0 +1,5 @@
+--freq-synth
+LO_I && LO_Q (LO0, LO1) and CLK_CPU need 50ohm serial resistors probably
+
+
+
