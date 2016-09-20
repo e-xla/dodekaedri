@@ -1,4 +1,4 @@
-update=ti 20. syyskuuta 2016 23.16.02
+update=ke 21. syyskuuta 2016 02.17.12
 version=1
 last_client=kicad
 [pcbnew]
@@ -56,5 +56,7 @@ LibName26=opto
 LibName27=atmel
 LibName28=contrib
 LibName29=valves
+LibName30=dodekaedri
+LibName31=Oscillators
 [general]
 version=1
