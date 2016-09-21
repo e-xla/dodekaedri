@@ -15,6 +15,26 @@ X +Vlogic 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
+# BNC
+#
+DEF BNC P 0 40 Y N 1 F N
+F0 "P" 10 120 50 H V C CNN
+F1 "BNC" 110 -60 50 V V C CNN
+F2 "" 0 0 50 H V C CNN
+F3 "" 0 0 50 H V C CNN
+$FPLIST
+ BNC_*
+ bnc
+ bnc-*
+$ENDFPLIST
+DRAW
+C 0 0 20 0 1 8 N
+C 0 0 70 0 1 12 N
+X In 1 -150 0 130 R 40 40 1 1 P
+X Ext 2 0 -200 130 U 40 40 1 1 P
+ENDDRAW
+ENDDEF
+#
 # C_Small
 #
 DEF C_Small C 0 10 N N 1 F N
@@ -34,6 +54,52 @@ P 2 0 1 13 -60 -20 60 -20 N
 P 2 0 1 12 -60 20 60 20 N
 X ~ 1 0 100 75 D 40 40 1 1 P
 X ~ 2 0 -100 80 U 40 40 1 1 P
+ENDDRAW
+ENDDEF
+#
+# D_Schottky_Small
+#
+DEF D_Schottky_Small D 0 10 N N 1 F N
+F0 "D" -50 80 50 H V L CNN
+F1 "D_Schottky_Small" -280 -80 50 H V L CNN
+F2 "" 0 0 50 V V C CNN
+F3 "" 0 0 50 V V C CNN
+$FPLIST
+ Diode_*
+ D-Pak_TO252AA
+ *SingleDiode
+ *SingleDiode*
+ *_Diode_*
+$ENDFPLIST
+DRAW
+P 2 0 1 0 -30 -40 -30 40 N
+P 3 0 1 0 -30 -40 -20 -40 -20 -30 N
+P 3 0 1 0 -30 40 -40 40 -40 30 N
+P 4 0 1 0 30 -40 -30 0 30 40 30 -40 F
+X K 1 -100 0 70 R 50 50 1 1 P
+X A 2 100 0 70 L 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# D_Small
+#
+DEF D_Small D 0 10 N N 1 F N
+F0 "D" -50 80 50 H V L CNN
+F1 "D_Small" -150 -80 50 H V L CNN
+F2 "" 0 0 50 V V C CNN
+F3 "" 0 0 50 V V C CNN
+$FPLIST
+ Diode_*
+ D-Pak_TO252AA
+ *SingleDiode
+ *SingleDiode*
+ *_Diode_*
+$ENDFPLIST
+DRAW
+P 2 0 1 0 -30 -40 -30 40 N
+P 4 0 1 0 30 -40 -30 0 30 40 30 -40 F
+X K 1 -100 0 70 R 50 50 1 1 P
+X A 2 100 0 70 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
@@ -67,6 +133,27 @@ X Vout 5 400 -200 197 L 50 50 1 1 w
 ENDDRAW
 ENDDEF
 #
+# L_Small
+#
+DEF L_Small L 0 10 N N 1 F N
+F0 "L" 30 40 50 H V L CNN
+F1 "L_Small" 30 -40 50 H V L CNN
+F2 "" 0 0 50 H V C CNN
+F3 "" 0 0 50 H V C CNN
+$FPLIST
+ CP*
+ SM*
+$ENDFPLIST
+DRAW
+A 0 -60 20 -899 899 0 1 0 N 0 -80 0 -40
+A 0 -20 20 -899 899 0 1 0 N 0 -40 0 0
+A 0 20 20 -899 899 0 1 0 N 0 0 0 40
+A 0 60 20 -899 899 0 1 0 N 0 40 0 80
+X ~ 1 0 100 20 D 40 40 1 1 P
+X ~ 2 0 -100 20 U 40 40 1 1 P
+ENDDRAW
+ENDDEF
+#
 # R
 #
 DEF R R 0 0 N Y 1 F N
@@ -82,6 +169,24 @@ DRAW
 S -40 -100 40 100 0 1 10 N
 X ~ 1 0 150 50 D 50 50 1 1 P
 X ~ 2 0 -150 50 U 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# R_Small
+#
+DEF R_Small R 0 10 N N 1 F N
+F0 "R" 30 20 50 H V L CNN
+F1 "R_Small" 30 -40 50 H V L CNN
+F2 "" 0 0 50 H V C CNN
+F3 "" 0 0 50 H V C CNN
+$FPLIST
+ Resistor_*
+ R_*
+$ENDFPLIST
+DRAW
+S -30 70 30 -70 0 1 8 N
+X ~ 1 0 100 30 D 40 40 1 1 P
+X ~ 2 0 -100 30 U 40 40 1 1 P
 ENDDRAW
 ENDDEF
 #
@@ -122,6 +227,23 @@ X GND 3 -500 -150 197 R 50 50 1 1 w
 X OUTPUT 4 500 -150 197 L 50 50 1 1 O
 X N.C. 5 500 0 197 L 50 50 1 1 N
 X VDD 6 500 150 197 L 50 50 1 1 W
+ENDDRAW
+ENDDEF
+#
+# microstrip
+#
+DEF microstrip LINE 0 40 Y Y 1 F N
+F0 "LINE" 0 -150 60 H V C CNN
+F1 "microstrip" 0 150 60 H V C CNN
+F2 "" 0 -25 60 H I C CNN
+F3 "" 0 -25 60 H I C CNN
+DRAW
+S -300 -25 300 -75 0 1 0 f
+S -300 75 300 25 0 1 0 f
+X meas_a ~ -500 -50 200 R 50 25 1 1 B
+X meas_b ~ 500 -50 200 L 50 25 1 1 B
+X power_a ~ -500 50 200 R 50 25 1 1 B
+X power_b ~ 500 50 200 L 50 25 1 1 B
 ENDDRAW
 ENDDEF
 #
