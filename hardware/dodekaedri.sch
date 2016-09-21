@@ -36,7 +36,7 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 3
-Title "top layer"
+Title "Block layer"
 Date "2016-09-20"
 Rev "0.1"
 Comp "PRK - OH2TI"
