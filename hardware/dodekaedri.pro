@@ -1,4 +1,4 @@
-update=ke 21. syyskuuta 2016 02.17.12
+update=to 22. syyskuuta 2016 01.07.22
 version=1
 last_client=kicad
 [pcbnew]
@@ -60,3 +60,13 @@ LibName30=dodekaedri
 LibName31=Oscillators
 [general]
 version=1
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60
