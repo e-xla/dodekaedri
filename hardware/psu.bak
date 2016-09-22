@@ -35,7 +35,7 @@ EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 4 4
+Sheet 4 5
 Title "Power supply unit"
 Date "2016-09-22"
 Rev "0.1"
@@ -138,43 +138,23 @@ Wire Wire Line
 Wire Wire Line
 	6600 3400 6600 3350
 Wire Wire Line
-	6550 3350 6600 3350
+	6550 3350 7100 3350
 Wire Wire Line
-	6600 3350 7000 3350
-Wire Wire Line
-	7000 3350 7100 3350
-Wire Wire Line
-	6600 3700 6600 3750
-Wire Wire Line
-	6600 3750 6600 3800
+	6600 3700 6600 3800
 Wire Wire Line
 	5900 3750 6600 3750
 Connection ~ 6600 3750
 Wire Wire Line
-	5450 4050 5450 4200
+	5450 4050 5450 4300
 Wire Wire Line
-	5450 4200 5450 4300
-Wire Wire Line
-	3200 4200 3400 4200
-Wire Wire Line
-	3400 4200 4700 4200
-Wire Wire Line
-	4700 4200 5300 4200
-Wire Wire Line
-	5300 4200 5450 4200
-Wire Wire Line
-	5450 4200 7000 4200
-Wire Wire Line
-	7000 4200 7800 4200
+	3200 4200 7800 4200
 Wire Wire Line
 	7000 3900 7000 4200
 Wire Wire Line
 	7000 3350 7000 3600
 Connection ~ 6600 3350
 Wire Wire Line
-	5300 4050 5300 4100
-Wire Wire Line
-	5300 4100 5300 4200
+	5300 4050 5300 4200
 Wire Wire Line
 	4950 3350 4450 3350
 Wire Wire Line
@@ -212,11 +192,7 @@ F 3 "" H 2900 3050 50  0000 C CNN
 $EndComp
 Connection ~ 4450 2950
 Wire Wire Line
-	3200 3050 3200 3150
-Wire Wire Line
-	3200 3150 3200 3250
-Wire Wire Line
-	3200 3250 3200 4200
+	3200 3050 3200 4200
 Connection ~ 5300 4200
 Connection ~ 3200 3150
 Connection ~ 7000 3350
@@ -234,13 +210,9 @@ $EndComp
 Wire Wire Line
 	4450 3800 4450 3450
 Wire Wire Line
-	4200 3450 4450 3450
+	4200 3450 4950 3450
 Wire Wire Line
-	4450 3450 4950 3450
-Wire Wire Line
-	3200 2950 3350 2950
-Wire Wire Line
-	3350 2950 3450 2950
+	3200 2950 3450 2950
 $Comp
 L C C?
 U 1 1 57E32ACD
@@ -266,15 +238,8 @@ F 3 "" H 3750 2950 50  0000 C CNN
 	1    3750 2950
 	0    -1   -1   0   
 $EndComp
-Connection ~ 3350 2950
 Wire Wire Line
-	4050 2950 4200 2950
-Wire Wire Line
-	4200 2950 4450 2950
-Wire Wire Line
-	4450 2950 4700 2950
-Wire Wire Line
-	4700 2950 5350 2950
+	4050 2950 5350 2950
 Wire Wire Line
 	4700 3250 4700 4200
 Connection ~ 4700 4200
@@ -301,9 +266,7 @@ F 3 "" H 7800 3750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7700 3350 7800 3350
-Wire Wire Line
-	7800 3350 8100 3350
+	7700 3350 8100 3350
 Connection ~ 7800 3350
 Wire Wire Line
 	7800 4200 7800 3900
@@ -312,17 +275,6 @@ Wire Wire Line
 	7800 3350 7800 3600
 Text HLabel 8100 3350 2    60   Output ~ 0
 Vlogic_OUT
-$Comp
-L PWR_FLAG #FLG?
-U 1 1 57E334E3
-P 3350 2950
-F 0 "#FLG?" H 3350 3045 50  0001 C CNN
-F 1 "PWR_FLAG" H 3350 3130 50  0000 C CNN
-F 2 "" H 3350 2950 50  0000 C CNN
-F 3 "" H 3350 2950 50  0000 C CNN
-	1    3350 2950
-	1    0    0    -1  
-$EndComp
 $Comp
 L PWR_FLAG #FLG?
 U 1 1 57E33511
@@ -335,9 +287,7 @@ F 3 "" H 3400 4200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5150 4100 5300 4100
-Wire Wire Line
-	5300 4100 6600 4100
+	5150 4100 6600 4100
 $Comp
 L R R?
 U 1 1 57E40BA6
@@ -354,4 +304,32 @@ Wire Wire Line
 Connection ~ 4200 2950
 Connection ~ 4450 3450
 Connection ~ 3400 4200
+Connection ~ 3350 2950
+$Comp
+L PWR_FLAG #FLG?
+U 1 1 57E44620
+P 3500 2750
+F 0 "#FLG?" H 3500 2845 50  0001 C CNN
+F 1 "PWR_FLAG" H 3500 2930 50  0000 C CNN
+F 2 "" H 3500 2750 50  0000 C CNN
+F 3 "" H 3500 2750 50  0000 C CNN
+	1    3500 2750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3200 2750 3500 2750
+Wire Wire Line
+	3350 2750 3350 2950
+Connection ~ 3350 2750
+$Comp
+L Vin #Vin?
+U 1 1 57E44EE6
+P 3200 2750
+F 0 "#Vin?" H 3350 2800 60  0001 C CNN
+F 1 "Vin" H 3050 2800 60  0000 C CNN
+F 2 "" H 3200 2750 60  0001 C CNN
+F 3 "" H 3200 2750 60  0001 C CNN
+	1    3200 2750
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

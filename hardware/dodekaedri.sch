@@ -35,7 +35,7 @@ EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 4
+Sheet 1 5
 Title "Block layer"
 Date "2016-09-20"
 Rev "0.1"
@@ -212,7 +212,11 @@ Wire Wire Line
 Wire Wire Line
 	3000 1250 3000 1200
 Wire Wire Line
-	2900 3300 3650 3300
+	2900 3300 3200 3300
+Wire Wire Line
+	3200 3300 3450 3300
+Wire Wire Line
+	3450 3300 3650 3300
 Wire Wire Line
 	3650 3750 3150 3750
 Wire Wire Line
@@ -220,12 +224,20 @@ Wire Wire Line
 Wire Wire Line
 	3650 3000 3650 3100
 Wire Wire Line
-	3200 3000 3650 3000
+	3200 3000 3450 3000
+Wire Wire Line
+	3450 3000 3650 3000
 Connection ~ 3450 3000
 Wire Wire Line
 	3450 3000 3450 2900
 Wire Wire Line
-	2800 2900 5850 2900
+	2800 2900 3450 2900
+Wire Wire Line
+	3450 2900 4400 2900
+Wire Wire Line
+	4400 2900 5300 2900
+Wire Wire Line
+	5300 2900 5850 2900
 Connection ~ 3200 3300
 Connection ~ 3450 3300
 $Comp
@@ -254,12 +266,20 @@ Wire Wire Line
 	5300 2900 5300 3050
 Connection ~ 4400 2900
 Wire Wire Line
-	5100 3050 5550 3050
+	5100 3050 5300 3050
+Wire Wire Line
+	5300 3050 5550 3050
 Wire Wire Line
 	5100 3050 5100 3100
 Connection ~ 5300 3050
 Wire Wire Line
-	5100 3350 6100 3350
+	5100 3350 5300 3350
+Wire Wire Line
+	5300 3350 5550 3350
+Wire Wire Line
+	5550 3350 5950 3350
+Wire Wire Line
+	5950 3350 6100 3350
 Wire Wire Line
 	5100 3350 5100 3300
 Connection ~ 5300 3350
@@ -278,14 +298,20 @@ $EndComp
 Wire Wire Line
 	5850 2900 5850 3500
 Wire Wire Line
-	5850 3500 5100 3500
+	5850 3500 5550 3500
+Wire Wire Line
+	5550 3500 5300 3500
+Wire Wire Line
+	5300 3500 5100 3500
 Connection ~ 5300 2900
 Connection ~ 5550 3500
 Connection ~ 5300 3500
 Wire Wire Line
 	5100 3700 5100 3800
 Wire Wire Line
-	5100 3800 5950 3800
+	5100 3800 5300 3800
+Wire Wire Line
+	5300 3800 5950 3800
 Wire Wire Line
 	5950 3800 5950 3350
 Connection ~ 5950 3350
@@ -297,7 +323,11 @@ NoConn ~ 5100 5450
 NoConn ~ 3650 4250
 NoConn ~ 3650 4350
 Wire Wire Line
-	2800 3600 3650 3600
+	2800 3600 3200 3600
+Wire Wire Line
+	3200 3600 3450 3600
+Wire Wire Line
+	3450 3600 3650 3600
 Wire Wire Line
 	3650 3600 3650 3500
 Connection ~ 3450 3600
@@ -340,15 +370,23 @@ F 3 "" H 3200 5150 50  0000 C CNN
 $EndComp
 NoConn ~ 3650 5250
 Wire Wire Line
-	2700 5350 3650 5350
+	2700 5350 3200 5350
+Wire Wire Line
+	3200 5350 3650 5350
 Wire Wire Line
 	3200 5350 3200 5300
 Wire Wire Line
-	2700 5450 3650 5450
+	2700 5450 3000 5450
+Wire Wire Line
+	3000 5450 3650 5450
 Wire Wire Line
 	3000 5450 3000 5300
 Wire Wire Line
-	3000 5000 3350 5000
+	3000 5000 3100 5000
+Wire Wire Line
+	3100 5000 3200 5000
+Wire Wire Line
+	3200 5000 3350 5000
 Connection ~ 3100 5000
 $Comp
 L C C?
@@ -362,7 +400,9 @@ F 3 "" H 5450 5300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5100 5150 5700 5150
+	5100 5150 5450 5150
+Wire Wire Line
+	5450 5150 5700 5150
 Connection ~ 5450 5150
 Wire Wire Line
 	5450 5450 5700 5450
@@ -392,7 +432,15 @@ I2S_placeholder
 Wire Bus Line
 	3450 4300 3550 4400
 Wire Bus Line
-	3550 4400 3550 4850
+	3550 4400 3550 4450
+Wire Bus Line
+	3550 4450 3550 4550
+Wire Bus Line
+	3550 4550 3550 4650
+Wire Bus Line
+	3550 4650 3550 4750
+Wire Bus Line
+	3550 4750 3550 4850
 Wire Bus Line
 	3450 4300 3000 4300
 Text HLabel 2700 5350 0    60   Input ~ 0
@@ -409,14 +457,6 @@ Wire Wire Line
 	5200 5350 5200 5750
 Wire Wire Line
 	5200 5750 5300 5750
-Text HLabel 5400 4400 2    60   Input ~ 0
-TX_I_PLACEHOLDER
-Text HLabel 5400 4550 2    60   Input ~ 0
-TX_Q_PLACEHOLDER
-Wire Wire Line
-	5100 4400 5400 4400
-Wire Wire Line
-	5100 4550 5400 4550
 $Comp
 L R R?
 U 1 1 57E44A02
@@ -441,4 +481,16 @@ Wire Wire Line
 	2700 3750 2850 3750
 Wire Wire Line
 	2700 3950 2850 3950
+$Sheet
+S 6750 4150 1100 800 
+U 57E42B3F
+F0 "TX_chain" 60
+F1 "tx_chain.sch" 60
+F2 "TX_I" I L 6750 4400 60 
+F3 "TX_Q" I L 6750 4550 60 
+$EndSheet
+Wire Wire Line
+	5100 4400 6750 4400
+Wire Wire Line
+	5100 4550 6750 4550
 $EndSCHEMATC

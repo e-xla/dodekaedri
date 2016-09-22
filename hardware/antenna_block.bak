@@ -35,7 +35,7 @@ EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 3 4
+Sheet 3 5
 Title "Antenna block, SWR-meter and RXTX switch"
 Date "2016-09-22"
 Rev "0.1"
@@ -290,27 +290,19 @@ $EndComp
 Wire Wire Line
 	2950 3100 3050 3100
 Wire Wire Line
-	3250 3100 3400 3100
-Wire Wire Line
-	3400 3100 3500 3100
+	3250 3100 3500 3100
 Wire Wire Line
 	3400 3100 3400 3200
 Connection ~ 3400 3100
 Wire Wire Line
-	3700 3100 3800 3100
-Wire Wire Line
-	3800 3100 3900 3100
+	3700 3100 3900 3100
 Wire Wire Line
 	3800 3200 3800 3100
 Connection ~ 3800 3100
 Wire Wire Line
 	3400 3400 3400 3550
 Wire Wire Line
-	2600 3550 3400 3550
-Wire Wire Line
-	3400 3550 3800 3550
-Wire Wire Line
-	3800 3550 4200 3550
+	2600 3550 4200 3550
 Wire Wire Line
 	3800 3550 3800 3400
 Wire Wire Line
@@ -319,9 +311,7 @@ Wire Wire Line
 	2600 2900 2600 3550
 Connection ~ 3400 3550
 Wire Wire Line
-	4100 3100 4200 3100
-Wire Wire Line
-	4200 3100 4350 3100
+	4100 3100 4350 3100
 Wire Wire Line
 	4200 3100 4200 3200
 Wire Wire Line
@@ -335,9 +325,7 @@ Wire Wire Line
 Wire Wire Line
 	4400 3900 4400 4100
 Wire Wire Line
-	4400 3900 4550 3900
-Wire Wire Line
-	4550 3900 4650 3900
+	4400 3900 4650 3900
 Wire Wire Line
 	4550 3900 4550 4550
 Wire Wire Line
@@ -347,9 +335,7 @@ Wire Wire Line
 Wire Wire Line
 	5950 3850 5650 3850
 Wire Wire Line
-	5650 3650 5650 3850
-Wire Wire Line
-	5650 3850 5650 3900
+	5650 3650 5650 3900
 Connection ~ 4550 3900
 Connection ~ 5650 3850
 Wire Wire Line
@@ -363,23 +349,13 @@ Wire Wire Line
 Wire Wire Line
 	4650 3900 4650 3650
 Wire Wire Line
-	4950 3650 4950 3700
+	4950 3650 4950 3900
 Wire Wire Line
-	4950 3700 4950 3900
-Wire Wire Line
-	5350 3650 5350 3800
-Wire Wire Line
-	5350 3800 5350 3900
+	5350 3650 5350 3900
 Wire Wire Line
 	4650 4100 4650 4200
 Wire Wire Line
-	4650 4200 4950 4200
-Wire Wire Line
-	4950 4200 5150 4200
-Wire Wire Line
-	5150 4200 5350 4200
-Wire Wire Line
-	5350 4200 5650 4200
+	4650 4200 5650 4200
 Wire Wire Line
 	5650 4200 5650 4100
 Wire Wire Line
@@ -514,28 +490,18 @@ F 3 "" H 8250 3100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	5650 3100 7200 3100
-Wire Wire Line
-	7200 3100 7400 3100
-Wire Wire Line
-	7400 3100 7750 3100
+	5650 3100 7750 3100
 Connection ~ 7200 3100
 Connection ~ 7400 3100
 Wire Wire Line
-	7950 3100 8050 3100
-Wire Wire Line
-	8050 3100 8150 3100
+	7950 3100 8150 3100
 Wire Wire Line
 	8050 3050 8050 3100
 Connection ~ 8050 3100
 Wire Wire Line
 	7200 3450 7200 3300
 Wire Wire Line
-	6850 3450 6900 3450
-Wire Wire Line
-	6900 3450 7200 3450
-Wire Wire Line
-	7200 3450 7400 3450
+	6850 3450 7400 3450
 Connection ~ 7200 3450
 Connection ~ 6900 3450
 $Comp
@@ -554,13 +520,9 @@ Wire Wire Line
 Wire Wire Line
 	7400 3350 7800 3350
 Wire Wire Line
-	7800 3350 7800 3750
+	7800 3750 7800 3350
 Wire Wire Line
-	7800 3750 7400 3750
-Wire Wire Line
-	7400 3750 7200 3750
-Wire Wire Line
-	7200 3750 6900 3750
+	6900 3750 7800 3750
 Wire Wire Line
 	7400 3750 7400 3650
 Wire Wire Line
