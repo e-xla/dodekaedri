@@ -156,28 +156,16 @@ F 3 "" H 4300 2600 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4300 2600 4600 2600
-Wire Wire Line
-	4600 2600 4850 2600
-Wire Wire Line
-	4850 2600 5050 2600
+	4300 2600 5050 2600
 Wire Wire Line
 	5050 2300 5050 2400
 Wire Wire Line
-	4600 2300 4850 2300
-Wire Wire Line
-	4850 2300 5050 2300
+	4600 2300 5050 2300
 Connection ~ 4850 2300
 Wire Wire Line
 	4850 2300 4850 2200
 Wire Wire Line
-	4200 2200 4850 2200
-Wire Wire Line
-	4850 2200 5800 2200
-Wire Wire Line
-	5800 2200 6700 2200
-Wire Wire Line
-	6700 2200 7250 2200
+	4200 2200 7250 2200
 Connection ~ 4600 2600
 Connection ~ 4850 2600
 $Comp
@@ -206,20 +194,12 @@ Wire Wire Line
 	6700 2200 6700 2350
 Connection ~ 5800 2200
 Wire Wire Line
-	6500 2350 6700 2350
-Wire Wire Line
-	6700 2350 6950 2350
+	6500 2350 6950 2350
 Wire Wire Line
 	6500 2350 6500 2400
 Connection ~ 6700 2350
 Wire Wire Line
-	6500 2650 6700 2650
-Wire Wire Line
-	6700 2650 6950 2650
-Wire Wire Line
-	6950 2650 7350 2650
-Wire Wire Line
-	7350 2650 7500 2650
+	6500 2650 7500 2650
 Wire Wire Line
 	6500 2650 6500 2600
 Connection ~ 6700 2650
@@ -238,20 +218,14 @@ $EndComp
 Wire Wire Line
 	7250 2200 7250 2800
 Wire Wire Line
-	7250 2800 6950 2800
-Wire Wire Line
-	6950 2800 6700 2800
-Wire Wire Line
-	6700 2800 6500 2800
+	7250 2800 6500 2800
 Connection ~ 6700 2200
 Connection ~ 6950 2800
 Connection ~ 6700 2800
 Wire Wire Line
 	6500 3000 6500 3100
 Wire Wire Line
-	6500 3100 6700 3100
-Wire Wire Line
-	6700 3100 7350 3100
+	6500 3100 7350 3100
 Wire Wire Line
 	7350 3100 7350 2650
 Connection ~ 7350 2650
@@ -263,11 +237,7 @@ NoConn ~ 6500 4750
 NoConn ~ 5050 3550
 NoConn ~ 5050 3650
 Wire Wire Line
-	4200 2900 4600 2900
-Wire Wire Line
-	4600 2900 4850 2900
-Wire Wire Line
-	4850 2900 5050 2900
+	4200 2900 5050 2900
 Wire Wire Line
 	5050 2900 5050 2800
 Connection ~ 4850 2900
@@ -309,21 +279,15 @@ F 3 "" H 4600 4450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4100 4650 4600 4650
-Wire Wire Line
-	4600 4650 5050 4650
+	4100 4650 5050 4650
 Wire Wire Line
 	4600 4650 4600 4600
 Wire Wire Line
-	4100 4750 4400 4750
-Wire Wire Line
-	4400 4750 5050 4750
+	4100 4750 5050 4750
 Wire Wire Line
 	4400 4750 4400 4600
 Wire Wire Line
-	4400 4300 4500 4300
-Wire Wire Line
-	4500 4300 4600 4300
+	4400 4300 4600 4300
 Connection ~ 4500 4300
 $Comp
 L C C?
@@ -337,12 +301,10 @@ F 3 "" H 6850 4600 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6500 4450 6850 4450
-Wire Wire Line
-	6850 4450 7100 4450
+	6500 4450 7350 4450
 Connection ~ 6850 4450
 Wire Wire Line
-	6850 4750 7100 4750
+	6850 4750 7550 4750
 $Comp
 L GND #PWR043
 U 1 1 57E4C1C1
@@ -369,15 +331,7 @@ RF_CHAIN_I2S
 Wire Bus Line
 	4850 3600 4950 3700
 Wire Bus Line
-	4950 3700 4950 3750
-Wire Bus Line
-	4950 3750 4950 3850
-Wire Bus Line
-	4950 3850 4950 3950
-Wire Bus Line
-	4950 3950 4950 4050
-Wire Bus Line
-	4950 4050 4950 4150
+	4950 3700 4950 4150
 Wire Bus Line
 	4850 3600 4400 3600
 Text HLabel 4100 4650 0    60   BiDi ~ 0
@@ -436,4 +390,52 @@ Wire Wire Line
 	6500 3700 6750 3700
 Wire Wire Line
 	6500 3850 6750 3850
+$Comp
+L TL972IDR U?
+U 1 1 57E46913
+P 8050 4600
+F 0 "U?" H 8050 4300 60  0000 C CNN
+F 1 "TL972IDR" H 8050 4900 60  0000 C CNN
+F 2 "" H 8100 4600 60  0001 C CNN
+F 3 "" H 8100 4600 60  0001 C CNN
+	1    8050 4600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7350 4450 7350 5000
+Wire Wire Line
+	7350 4650 7550 4650
+Connection ~ 7100 4450
+Wire Wire Line
+	7350 5000 8550 5000
+Wire Wire Line
+	8550 5000 8550 4750
+Connection ~ 7350 4650
+Connection ~ 7100 4750
+Wire Wire Line
+	7550 4200 7550 4550
+Wire Wire Line
+	8550 4550 8550 4650
+$Comp
+L +Vlogic #PWR?
+U 1 1 57E46B0D
+P 8550 4150
+F 0 "#PWR?" H 8550 3950 50  0001 C CNN
+F 1 "+Vlogic" H 8550 4350 50  0000 C CNN
+F 2 "" H 8550 4150 50  0000 C CNN
+F 3 "" H 8550 4150 50  0000 C CNN
+	1    8550 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8550 4150 8550 4450
+Text HLabel 8850 4550 2    60   Output ~ 0
+RX_BIAS
+Text HLabel 8850 4200 2    60   Output ~ 0
+TX_BIAS
+Wire Wire Line
+	7550 4200 8850 4200
+Connection ~ 7550 4450
+Wire Wire Line
+	8550 4550 8850 4550
 $EndSCHEMATC

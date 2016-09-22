@@ -41,7 +41,7 @@ Date "2016-09-22"
 Rev "0.1"
 Comp "PRK - OH2TI"
 Comment1 "exla - OH2EHK"
-Comment2 ""
+Comment2 "tejeez - OH2EAT"
 Comment3 ""
 Comment4 ""
 $EndDescr

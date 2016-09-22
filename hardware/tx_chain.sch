@@ -41,7 +41,7 @@ Date "2016-09-22"
 Rev "0.1"
 Comp "PRK - OH2TI"
 Comment1 "exla - OH2EHK"
-Comment2 ""
+Comment2 "tejeez - OH2EAT"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -195,7 +195,7 @@ $EndComp
 Wire Wire Line
 	3550 4100 3950 4100
 Wire Wire Line
-	3950 4100 3950 4350
+	3950 3950 3950 4350
 Connection ~ 3750 4100
 Connection ~ 3750 4400
 $Comp
@@ -713,4 +713,9 @@ F 3 "" H 9150 4900 50  0000 C CNN
 	1    9150 4900
 	1    0    0    -1  
 $EndComp
+Text HLabel 3900 3950 0    60   Input ~ 0
+TX_BIAS
+Wire Wire Line
+	3900 3950 3950 3950
+Connection ~ 3950 4100
 $EndSCHEMATC
