@@ -35,7 +35,7 @@ EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 3
+Sheet 1 4
 Title "Block layer"
 Date "2016-09-20"
 Rev "0.1"
@@ -57,4 +57,26 @@ U 57E31F2A
 F0 "antenna_block" 60
 F1 "antenna_block.sch" 60
 $EndSheet
+$Sheet
+S 5450 4400 1400 950 
+U 57E31551
+F0 "PSU" 60
+F1 "psu.sch" 60
+F2 "Vlogic_OUT" O R 6850 4650 60 
+$EndSheet
+$Comp
+L +Vlogic #PWR?
+U 1 1 57E3367B
+P 7200 4600
+F 0 "#PWR?" H 7200 4400 50  0001 C CNN
+F 1 "+Vlogic" H 7200 4800 50  0000 C CNN
+F 2 "" H 7200 4600 50  0000 C CNN
+F 3 "" H 7200 4600 50  0000 C CNN
+	1    7200 4600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6850 4650 7200 4650
+Wire Wire Line
+	7200 4650 7200 4600
 $EndSCHEMATC

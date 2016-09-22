@@ -35,7 +35,7 @@ EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 3 3
+Sheet 3 4
 Title "Antenna block, SWR-meter and RXTX switch"
 Date "2016-09-22"
 Rev "0.1"
