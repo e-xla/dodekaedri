@@ -520,9 +520,9 @@ Wire Wire Line
 Wire Wire Line
 	7400 3350 7800 3350
 Wire Wire Line
-	7800 3750 7800 3350
+	7800 3350 7800 3750
 Wire Wire Line
-	6900 3750 7800 3750
+	7800 3750 6900 3750
 Wire Wire Line
 	7400 3750 7400 3650
 Wire Wire Line
