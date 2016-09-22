@@ -17,7 +17,7 @@ LDFLAGS= -T$(STDPERIPH)/Project/STM32F4xx_StdPeriph_Templates/SW4STM32/STM32F401
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-TARGETS=dodekaedri.o stm32f4xx_gpio.o stm32f4xx_rcc.o startup.o
+TARGETS=dodekaedri.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o startup.o
 
 dodekaedri.bin: dodekaedri.elf
 	$(OBJCOPY) -O binary $^ $@
@@ -31,6 +31,9 @@ stm32f4xx_gpio.o: $(DRIVER)/src/stm32f4xx_gpio.c
 stm32f4xx_rcc.o: $(DRIVER)/src/stm32f4xx_rcc.c
 	$(CC) $(CFLAGS) $^ -c -o $@
 
+stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c
+	$(CC) $(CFLAGS) $^ -c -o $@
+
 startup.o: $(STARTUP)
 	$(CC) $(CFLAGS) $^ -c -o $@
 
@@ -38,7 +41,7 @@ dodekaedri.o: dodekaedri.c $(DRIVER)/inc/stm32f4xx_gpio.h $(DRIVER)/inc/stm32f4x
 	$(CC) $(CFLAGS) dodekaedri.c -c -o $@
 
 clean:
-	rm $(TARGETS)
+	rm dodekaedri.bin dodekaedri.elf $(TARGETS)
 
 .PHONY: clean
 
