@@ -30,18 +30,19 @@ LIBS:contrib
 LIBS:valves
 LIBS:dodekaedri
 LIBS:Oscillators
+LIBS:stm32
 LIBS:dodekaedri-cache
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 6 7
+Sheet 6 8
 Title "RX chain"
 Date "2016-09-23"
-Rev "0.1"
+Rev "0.4"
 Comp "PRK - OH2TI"
 Comment1 "exla - OH2EHK"
-Comment2 ""
+Comment2 "tejeez - OH2EAT"
 Comment3 ""
 Comment4 ""
 $EndDescr
