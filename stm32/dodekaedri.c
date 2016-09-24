@@ -1,5 +1,3 @@
-/* Simple LED blink for STM32F401RE Nucleo board */
-
 #include "stm32f4xx.h"
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_gpio.h"
@@ -25,17 +23,33 @@ void i2c_wait() {
 	for(d = 0; d < i2cdelay; d++) __asm("nop");
 }
 
+/* trying to do something similar to
+   https://github.com/Catethysis/stm32_i2c/blob/master/I2C.c
+   - still doesn't work :( */
 void writereg(uint8_t addr, uint8_t reg, uint8_t v) {
-	i2c_wait();
 	I2C_GenerateSTART(I2C1, ENABLE);
 	i2c_wait();
-	I2C_Send7bitAddress(I2C1, addr, I2C_Direction_Transmitter);
+	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+
+	//I2C_Send7bitAddress(I2C1, addr, I2C_Direction_Transmitter);
+	//i2c_wait();
+	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+
+	I2C_SendData(I2C1, addr<<1);
 	i2c_wait();
+	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
 	I2C_SendData(I2C1, reg);
 	i2c_wait();
+	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
 	I2C_SendData(I2C1, v);
 	i2c_wait();
+	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
 	I2C_GenerateSTOP(I2C1, ENABLE);
+	i2c_wait();
+	//while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
 }
 
 
@@ -84,9 +98,9 @@ int main() {
 		.I2C_ClockSpeed = 100000,
 		.I2C_Mode = I2C_Mode_I2C,
 		.I2C_DutyCycle = I2C_DutyCycle_2,
-		.I2C_OwnAddress1 = 1,
+		.I2C_OwnAddress1 = 0,
 		.I2C_Ack = I2C_Ack_Enable,
-		.I2C_AcknowledgedAddress = 1
+		.I2C_AcknowledgedAddress = 0
 	});
 
 	SPI_Cmd(SPI1, ENABLE);
