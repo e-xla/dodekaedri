@@ -17,7 +17,7 @@ LDFLAGS= -T$(STDPERIPH)/Project/STM32F4xx_StdPeriph_Templates/SW4STM32/STM32F401
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-TARGETS=dodekaedri.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o startup.o
+TARGETS=dodekaedri.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o startup.o
 
 dodekaedri.bin: dodekaedri.elf
 	$(OBJCOPY) -O binary $^ $@
@@ -34,10 +34,13 @@ stm32f4xx_rcc.o: $(DRIVER)/src/stm32f4xx_rcc.c
 stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c
 	$(CC) $(CFLAGS) $^ -c -o $@
 
+stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c
+	$(CC) $(CFLAGS) $^ -c -o $@
+
 startup.o: $(STARTUP)
 	$(CC) $(CFLAGS) $^ -c -o $@
 
-dodekaedri.o: dodekaedri.c $(DRIVER)/inc/stm32f4xx_gpio.h $(DRIVER)/inc/stm32f4xx_rcc.h
+dodekaedri.o: dodekaedri.c
 	$(CC) $(CFLAGS) dodekaedri.c -c -o $@
 
 clean:
