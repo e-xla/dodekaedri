@@ -14,8 +14,9 @@ void SystemInit() {
 
 int i;
 int i2cdelay = 2000;
-uint8_t a = 0;
+uint8_t a = 0x60;
 
+#if 0
 void i2c_wait() {
 	int d;
 	//while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
@@ -28,28 +29,40 @@ void i2c_wait() {
    - still doesn't work :( */
 void writereg(uint8_t addr, uint8_t reg, uint8_t v) {
 	I2C_GenerateSTART(I2C1, ENABLE);
-	i2c_wait();
-	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	/*i2c_wait();
+	I2C_GenerateSTART(I2C1, DISABLE);
+	i2c_wait();*/
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
-	//I2C_Send7bitAddress(I2C1, addr, I2C_Direction_Transmitter);
+	I2C_Send7bitAddress(I2C1, addr, I2C_Direction_Transmitter);
 	//i2c_wait();
-	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
 	I2C_SendData(I2C1, addr<<1);
-	i2c_wait();
-	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	//i2c_wait();
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
 	I2C_SendData(I2C1, reg);
-	i2c_wait();
-	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	//i2c_wait();
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
 	I2C_SendData(I2C1, v);
-	i2c_wait();
-	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	//i2c_wait();
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
-	i2c_wait();
-	//while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
+	/*i2c_wait();
+	I2C_GenerateSTOP(I2C1, DISABLE);
+	i2c_wait();*/
+	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
+}
+#endif
+#include "i2c.h"
+void writereg(uint8_t addr, uint8_t reg, uint8_t v) {
+	I2C_start(I2C1, addr, I2C_Direction_Transmitter);
+	I2C_write(I2C1, reg);
+	I2C_write(I2C1, v);
+	I2C_stop(I2C1);
 }
 
 
@@ -67,6 +80,7 @@ int main() {
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
 
+#if 0
 	GPIO_Init(GPIOB, &(GPIO_InitTypeDef) {
 		.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9,
 		.GPIO_Mode = GPIO_Mode_AF,
@@ -74,13 +88,16 @@ int main() {
 		.GPIO_OType = GPIO_OType_OD,
 		.GPIO_PuPd = GPIO_PuPd_UP
 	});
+#endif
 
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);
 
+#if 0
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
+#endif
 
 	SPI_Init(SPI1, &(SPI_InitTypeDef) {
 		.SPI_Direction = SPI_Direction_1Line_Tx,
@@ -93,25 +110,27 @@ int main() {
 		.SPI_FirstBit = SPI_FirstBit_MSB,
 		.SPI_CRCPolynomial = 0
 	});
-
-	I2C_Init(I2C1, &(I2C_InitTypeDef) {
-		.I2C_ClockSpeed = 100000,
-		.I2C_Mode = I2C_Mode_I2C,
-		.I2C_DutyCycle = I2C_DutyCycle_2,
-		.I2C_OwnAddress1 = 0,
-		.I2C_Ack = I2C_Ack_Enable,
-		.I2C_AcknowledgedAddress = 0
-	});
-
 	SPI_Cmd(SPI1, ENABLE);
+
+#if 0
+	I2C_InitTypeDef i2ci;
+	I2C_StructInit(&i2ci);
+	i2ci.I2C_ClockSpeed = 100000;
+	i2ci.I2C_Mode = I2C_Mode_I2C;
+	i2ci.I2C_DutyCycle = I2C_DutyCycle_2;
+	i2ci.I2C_Ack = I2C_Ack_Disable;
+	i2ci.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+	I2C_Init(I2C1, &i2ci);
 	I2C_Cmd(I2C1, ENABLE);
+#endif
+	init_I2C1();
 
 	for(;;) {
 		for(i = 0; i < NUM_REGS_MAX; i++) {
 			SPI_I2S_SendData(SPI1, 0x55);
 			writereg(a, Reg_Store[i].Reg_Addr, Reg_Store[i].Reg_Val);
 		}
-		a++; // try all addresses
+		//a++; // try all addresses
 	}
 	return 0;
 }
