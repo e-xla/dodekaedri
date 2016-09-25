@@ -40,7 +40,7 @@ stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c
 startup.o: $(STARTUP)
 	$(CC) $(CFLAGS) $^ -c -o $@
 
-dodekaedri.o: dodekaedri.c i2c.h
+dodekaedri.o: dodekaedri.c
 	$(CC) $(CFLAGS) dodekaedri.c -c -o $@
 
 clean:

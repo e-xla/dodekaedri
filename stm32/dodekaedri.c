@@ -12,57 +12,54 @@
 void SystemInit() {
 }
 
-int i;
-int i2cdelay = 2000;
+int reg_i;
 uint8_t a = 0x60;
 
-#if 0
-void i2c_wait() {
+int i2cdelay = 20;
+void i2c_delay() {
 	int d;
-	//while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
-	// let's see if it works more easily with fixed delay
 	for(d = 0; d < i2cdelay; d++) __asm("nop");
 }
 
-/* trying to do something similar to
-   https://github.com/Catethysis/stm32_i2c/blob/master/I2C.c
-   - still doesn't work :( */
+// SCL 8, SDA 9
+#define I2C_SCL 0x100
+#define I2C_SDA 0x200
+
 void writereg(uint8_t addr, uint8_t reg, uint8_t v) {
-	I2C_GenerateSTART(I2C1, ENABLE);
-	/*i2c_wait();
-	I2C_GenerateSTART(I2C1, DISABLE);
-	i2c_wait();*/
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	int i;
+	uint32_t odr = GPIOB->ODR & (~(I2C_SCL | I2C_SDA));
+	uint32_t allbits;
+	// start
+	GPIOB->ODR = odr | I2C_SCL;
+	i2c_delay();
+	GPIOB->ODR = odr;
+	i2c_delay();
 
-	I2C_Send7bitAddress(I2C1, addr, I2C_Direction_Transmitter);
-	//i2c_wait();
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+	allbits =
+	(addr << (9*2+2)) | (0 << (9*2+1)) | (1 << (9*2)) |
+	(reg  << (9*1+1)) |                  (1 << (9*1)) |
+	(v    << (9*0+1)) |                  (1 << (9*0));
+	for(i = 0; i < 9*3; i++) {
+		uint32_t odr_bit;
+		if(allbits & (1 << (9*3-1)))
+			odr_bit = odr | I2C_SDA;
+		else
+			odr_bit = odr;
+		allbits <<= 1;
+		// send bit
+		GPIOB->ODR = odr_bit;
+		i2c_delay();
+		GPIOB->ODR = odr_bit | I2C_SCL;
+		i2c_delay();
+		GPIOB->ODR = odr_bit;
+		i2c_delay();
+	}
 
-	I2C_SendData(I2C1, addr<<1);
-	//i2c_wait();
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-
-	I2C_SendData(I2C1, reg);
-	//i2c_wait();
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-
-	I2C_SendData(I2C1, v);
-	//i2c_wait();
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-
-	I2C_GenerateSTOP(I2C1, ENABLE);
-	/*i2c_wait();
-	I2C_GenerateSTOP(I2C1, DISABLE);
-	i2c_wait();*/
-	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
-}
-#endif
-#include "i2c.h"
-void writereg(uint8_t addr, uint8_t reg, uint8_t v) {
-	I2C_start(I2C1, addr, I2C_Direction_Transmitter);
-	I2C_write(I2C1, reg);
-	I2C_write(I2C1, v);
-	I2C_stop(I2C1);
+	// stop
+	GPIOB->ODR = odr | I2C_SCL;
+	i2c_delay();
+	GPIOB->ODR = odr | I2C_SCL | I2C_SDA;
+	i2c_delay();
 }
 
 
@@ -80,24 +77,17 @@ int main() {
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
 
-#if 0
 	GPIO_Init(GPIOB, &(GPIO_InitTypeDef) {
 		.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9,
-		.GPIO_Mode = GPIO_Mode_AF,
+		.GPIO_Mode = GPIO_Mode_OUT,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_OD,
 		.GPIO_PuPd = GPIO_PuPd_UP
 	});
-#endif
 
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);
-
-#if 0
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
-#endif
 
 	SPI_Init(SPI1, &(SPI_InitTypeDef) {
 		.SPI_Direction = SPI_Direction_1Line_Tx,
@@ -112,25 +102,11 @@ int main() {
 	});
 	SPI_Cmd(SPI1, ENABLE);
 
-#if 0
-	I2C_InitTypeDef i2ci;
-	I2C_StructInit(&i2ci);
-	i2ci.I2C_ClockSpeed = 100000;
-	i2ci.I2C_Mode = I2C_Mode_I2C;
-	i2ci.I2C_DutyCycle = I2C_DutyCycle_2;
-	i2ci.I2C_Ack = I2C_Ack_Disable;
-	i2ci.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_Init(I2C1, &i2ci);
-	I2C_Cmd(I2C1, ENABLE);
-#endif
-	init_I2C1();
-
 	for(;;) {
-		for(i = 0; i < NUM_REGS_MAX; i++) {
+		for(reg_i = 0; reg_i < NUM_REGS_MAX; reg_i++) {
 			SPI_I2S_SendData(SPI1, 0x55);
-			writereg(a, Reg_Store[i].Reg_Addr, Reg_Store[i].Reg_Val);
+			writereg(a, Reg_Store[reg_i].Reg_Addr, Reg_Store[reg_i].Reg_Val);
 		}
-		//a++; // try all addresses
 	}
 	return 0;
 }
