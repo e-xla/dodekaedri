@@ -13,11 +13,11 @@ CFLAGS+= -I$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Include
 CFLAGS+= -I$(STDPERIPH)/Libraries/STM32F4xx_StdPeriph_Driver/inc/
 CFLAGS+= -I.
 
-LDFLAGS= -T$(STDPERIPH)/Project/STM32F4xx_StdPeriph_Templates/SW4STM32/STM32F401xx/STM32F401VCTx_FLASH.ld -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+LDFLAGS= -TSTM32F401RETx_FLASH.ld -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-TARGETS=dodekaedri.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o startup.o
+TARGETS=dodekaedri.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o
 
 dodekaedri.bin: dodekaedri.elf
 	$(OBJCOPY) -O binary $^ $@
@@ -35,6 +35,9 @@ stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c
 	$(CC) $(CFLAGS) $^ -c -o $@
 
 stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c
+	$(CC) $(CFLAGS) $^ -c -o $@
+
+stm32f4xx_usart.o: $(DRIVER)/src/stm32f4xx_usart.c
 	$(CC) $(CFLAGS) $^ -c -o $@
 
 startup.o: $(STARTUP)
