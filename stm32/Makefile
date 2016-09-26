@@ -25,25 +25,25 @@ dodekaedri.bin: dodekaedri.elf
 dodekaedri.elf: $(TARGETS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
-stm32f4xx_gpio.o: $(DRIVER)/src/stm32f4xx_gpio.c
-	$(CC) $(CFLAGS) $^ -c -o $@
+stm32f4xx_gpio.o: $(DRIVER)/src/stm32f4xx_gpio.c stm32f4xx_conf.h
+	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_gpio.c -c -o $@
 
-stm32f4xx_rcc.o: $(DRIVER)/src/stm32f4xx_rcc.c
-	$(CC) $(CFLAGS) $^ -c -o $@
+stm32f4xx_rcc.o: $(DRIVER)/src/stm32f4xx_rcc.c stm32f4xx_conf.h
+	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_rcc.c -c -o $@
 
-stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c
-	$(CC) $(CFLAGS) $^ -c -o $@
+stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c stm32f4xx_conf.h
+	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_spi.c -c -o $@
 
-stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c
-	$(CC) $(CFLAGS) $^ -c -o $@
+stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c stm32f4xx_conf.h
+	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_i2c.c -c -o $@
 
-stm32f4xx_usart.o: $(DRIVER)/src/stm32f4xx_usart.c
-	$(CC) $(CFLAGS) $^ -c -o $@
+stm32f4xx_usart.o: $(DRIVER)/src/stm32f4xx_usart.c stm32f4xx_conf.h
+	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_usart.c -c -o $@
 
 startup.o: $(STARTUP)
 	$(CC) $(CFLAGS) $^ -c -o $@
 
-dodekaedri.o: dodekaedri.c
+dodekaedri.o: dodekaedri.c stm32f4xx_conf.h
 	$(CC) $(CFLAGS) dodekaedri.c -c -o $@
 
 clean:

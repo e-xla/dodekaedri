@@ -63,8 +63,10 @@ void writereg(uint8_t addr, uint8_t reg, uint8_t v) {
 }
 
 
+int usart_enabled = 0;
 void print(char *data) {
 	/* Send text to USART2 */
+	if(usart_enabled == 0) return;
 	for(; *data != '\0'; data++) {
 		/*while(!USART_GetFlagStatus(USART2, USART_FLAG_TXE));
 		USART_SendData(USART2, (uint8_t)*data);*/
@@ -72,6 +74,19 @@ void print(char *data) {
 		USART2->DR = (uint8_t)*data;
 	}
 }
+
+void assert_failed(uint8_t *file, uint32_t line) {
+	char l[9] = "      \r\n";
+	print("\r\nAssert failed: ");
+	print((char*)file);
+	l[5] = '0' + line % 10;
+	l[4] = '0' + (line / 10) % 10;
+	l[3] = '0' + (line / 100) % 10;
+	l[2] = '0' + (line / 1000) % 10;
+	l[1] = '0' + (line / 10000);
+	print(l);
+}
+
 
 
 int main() {
@@ -100,6 +115,7 @@ int main() {
 		.USART_HardwareFlowControl = USART_HardwareFlowControl_None
 	});
 	USART_Cmd(USART2, ENABLE);
+	usart_enabled = 1;
 	print("\r\nHello world\r\n");
 
 	// SPI1 initialization
@@ -145,11 +161,13 @@ int main() {
 	// PLLI2S clock source is common with main PLL configured with RCC_PLLConfig.
 	// HSI (internal RC oscillator) is now used for initial tests.
 	RCC_PLLConfig(RCC_PLLSource_HSI, 8, 50, 2, 4);
+	RCC_PLLCmd(ENABLE);
 
-	RCC_PLLI2SConfig(12,2);
+	RCC_I2SCLKConfig(RCC_I2S2CLKSource_PLLI2S);
+	RCC_PLLI2SConfig(72,3);
 	RCC_PLLI2SCmd(ENABLE);
 	while(!RCC_GetFlagStatus(RCC_FLAG_PLLI2SRDY));
-	RCC_I2SCLKConfig(RCC_I2S2CLKSource_PLLI2S);
+	RCC_I2SCLKConfig(700); // test assert
 
 	// I2S2 initialization
 	RCC_APB2PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE); // I2S2
