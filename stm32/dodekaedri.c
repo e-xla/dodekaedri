@@ -65,13 +65,14 @@ void writereg(uint8_t addr, uint8_t reg, uint8_t v) {
 
 int usart_enabled = 0;
 void print(char *data) {
-	/* Send text to USART2 */
+	/* Send text to USART1 */
 	if(usart_enabled == 0) return;
 	for(; *data != '\0'; data++) {
-		/*while(!USART_GetFlagStatus(USART2, USART_FLAG_TXE));
-		USART_SendData(USART2, (uint8_t)*data);*/
-		while(!(USART2->SR & USART_SR_TXE));
-		USART2->DR = (uint8_t)*data;
+		/*while(!USART_GetFlagStatus(USART1, USART_FLAG_TXE));
+		USART_SendData(USART1, (uint8_t)*data);*/
+		while(!(USART1->SR & USART_SR_TXE));
+		USART1->DR = (uint8_t)*data;
+		//ITM_SendChar(*data);
 	}
 }
 
@@ -94,19 +95,21 @@ int main() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
-	// USART2 initialization
-	// USART2 is used to communicate with PC on the Nucleo board
-	RCC_AHB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2); // USART2_TX
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2); // USART2_RX
+	// USART1 initialization
+	// External USB-UART converter is connected to PA9
+	// because the built-in converter on Nucleo board in USART2
+	// seems to work poorly.
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1); // USART1_TX
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_USART1); // USART1_RX
 	GPIO_Init(GPIOA, &(GPIO_InitTypeDef) {
-		.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3,
+		.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_10,
 		.GPIO_Mode = GPIO_Mode_AF,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_PP,
 		.GPIO_PuPd = GPIO_PuPd_UP
 	});
-	USART_Init(USART2, &(USART_InitTypeDef) {
+	USART_Init(USART1, &(USART_InitTypeDef) {
 		.USART_BaudRate = 115200,
 		.USART_WordLength = USART_WordLength_8b,
 		.USART_StopBits = USART_StopBits_1,
@@ -114,7 +117,7 @@ int main() {
 		.USART_Mode = USART_Mode_Tx | USART_Mode_Rx,
 		.USART_HardwareFlowControl = USART_HardwareFlowControl_None
 	});
-	USART_Cmd(USART2, ENABLE);
+	USART_Cmd(USART1, ENABLE);
 	usart_enabled = 1;
 	print("\r\nHello world\r\n");
 
@@ -140,7 +143,7 @@ int main() {
 		.SPI_NSS = SPI_NSS_Soft,
 		.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16,
 		.SPI_FirstBit = SPI_FirstBit_MSB,
-		.SPI_CRCPolynomial = 0
+		.SPI_CRCPolynomial = 7 // default value
 	});
 	SPI_Cmd(SPI1, ENABLE);
 
@@ -167,10 +170,9 @@ int main() {
 	RCC_PLLI2SConfig(72,3);
 	RCC_PLLI2SCmd(ENABLE);
 	while(!RCC_GetFlagStatus(RCC_FLAG_PLLI2SRDY));
-	RCC_I2SCLKConfig(700); // test assert
 
 	// I2S2 initialization
-	RCC_APB2PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE); // I2S2
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE); // I2S2
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2); // I2S2_WS
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2); // I2S2_CK
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2); // I2S2_SD
@@ -194,7 +196,7 @@ int main() {
 
 
 	// I2S3 initialization
-	RCC_APB2PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE); // I2S3
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE); // I2S3
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_SPI3); // I2S3_CK
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource12, GPIO_AF_SPI3); // I2S3_SD
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource15, GPIO_AF_SPI3); // I2S3_WS
