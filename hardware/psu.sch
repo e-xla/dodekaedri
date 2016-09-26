@@ -88,7 +88,7 @@ F 1 "22µF" H 7025 3650 50  0000 L CNN
 F 2 "" H 7038 3600 50  0000 C CNN
 F 3 "" H 7000 3750 50  0000 C CNN
 	1    7000 3750
-	-1   0    0    1   
+	1    0    0    -1  
 $EndComp
 $Comp
 L INDUCTOR L?
@@ -146,9 +146,7 @@ Connection ~ 6600 3750
 Wire Wire Line
 	5450 4050 5450 4300
 Wire Wire Line
-	3350 4200 7800 4200
-Wire Wire Line
-	7000 3900 7000 4200
+	3350 4200 8150 4200
 Wire Wire Line
 	7000 3350 7000 3600
 Connection ~ 6600 3350
@@ -157,7 +155,7 @@ Wire Wire Line
 Wire Wire Line
 	4950 3350 4450 3350
 Wire Wire Line
-	4450 3350 4450 2950
+	4450 2950 4450 3350
 Connection ~ 4700 2950
 Wire Wire Line
 	4800 3550 4950 3550
@@ -191,7 +189,7 @@ F 3 "" H 1950 3050 50  0000 C CNN
 $EndComp
 Connection ~ 4450 2950
 Wire Wire Line
-	2250 3050 2250 3400
+	2250 3050 2250 3450
 Connection ~ 5300 4200
 Connection ~ 2250 3150
 Connection ~ 7000 3350
@@ -213,16 +211,14 @@ Wire Wire Line
 $Comp
 L C C?
 U 1 1 57E32ACD
-P 3350 3250
-F 0 "C?" H 3375 3350 50  0000 L CNN
-F 1 "22µF" H 3375 3150 50  0000 L CNN
-F 2 "" H 3388 3100 50  0000 C CNN
-F 3 "" H 3350 3250 50  0000 C CNN
-	1    3350 3250
+P 3350 3200
+F 0 "C?" H 3375 3300 50  0000 L CNN
+F 1 "22µF" H 3375 3100 50  0000 L CNN
+F 2 "" H 3388 3050 50  0000 C CNN
+F 3 "" H 3350 3200 50  0000 C CNN
+	1    3350 3200
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	2250 3400 3350 3400
 Wire Wire Line
 	4100 2950 5350 2950
 Wire Wire Line
@@ -245,7 +241,7 @@ Wire Wire Line
 Connection ~ 7000 4200
 Wire Wire Line
 	7800 3350 7800 3600
-Text HLabel 8100 3350 2    60   Output ~ 0
+Text HLabel 8350 3350 2    60   Output ~ 0
 Vlogic_OUT
 $Comp
 L PWR_FLAG #FLG015
@@ -309,7 +305,7 @@ Wire Wire Line
 	3100 2950 3400 2950
 Connection ~ 2250 2650
 Wire Wire Line
-	3350 2600 3350 3100
+	3350 2600 3350 3050
 $Comp
 L ZENER D?
 U 1 1 57E57556
@@ -321,13 +317,11 @@ F 3 "" H 3100 3200 50  0000 C CNN
 	1    3100 3200
 	0    1    1    0   
 $EndComp
-Connection ~ 3100 3400
-Wire Wire Line
-	3100 3000 3100 2950
+Connection ~ 3100 3450
 Wire Wire Line
 	2250 2950 2500 2950
 Wire Wire Line
-	3350 3400 3350 4200
+	3350 3350 3350 4200
 Text HLabel 3500 2600 2    60   Output ~ 0
 Vin_out
 Wire Wire Line
@@ -355,7 +349,33 @@ F 3 "" H 7400 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7750 3350 8100 3350
+	7750 3350 8350 3350
 Wire Wire Line
 	6550 3350 7050 3350
+$Comp
+L ZENER D?
+U 1 1 57ED7CD8
+P 8150 3750
+F 0 "D?" H 8150 3850 50  0000 C CNN
+F 1 "MSP3V3" H 8150 3650 50  0000 C CNN
+F 2 "" H 8150 3750 50  0000 C CNN
+F 3 "" H 8150 3750 50  0000 C CNN
+	1    8150 3750
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8150 3550 8150 3350
+Connection ~ 8150 3350
+Wire Wire Line
+	8150 4200 8150 3950
+Connection ~ 7800 4200
+Connection ~ 3350 3450
+Wire Wire Line
+	3100 3000 3100 2950
+Wire Wire Line
+	2250 3450 3350 3450
+Wire Wire Line
+	3100 3400 3100 3450
+Wire Wire Line
+	7000 3900 7000 4200
 $EndSCHEMATC

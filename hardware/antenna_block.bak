@@ -500,13 +500,13 @@ Wire Wire Line
 Wire Wire Line
 	6900 3750 6900 3650
 Connection ~ 7200 3750
-Text HLabel 8450 3100 2    60   BiDi ~ 0
+Text HLabel 8450 3100 2    60   Input ~ 0
 TX_CHAIN
 Wire Wire Line
 	8450 3100 7950 3100
 Text HLabel 8450 2850 2    60   Input ~ 0
 RX_TX
-Text HLabel 8000 4000 2    60   BiDi ~ 0
+Text HLabel 8000 4000 2    60   Output ~ 0
 RX_CHAIN
 $Comp
 L INDUCTOR L?
