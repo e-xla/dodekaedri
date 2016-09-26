@@ -368,9 +368,9 @@ Connection ~ 4950 4200
 Wire Wire Line
 	5150 4200 5150 4300
 Connection ~ 5150 4200
-Text HLabel 6000 3700 2    60   UnSpc ~ 0
+Text HLabel 6000 3700 2    60   Output ~ 0
 SWR_ADC_A
-Text HLabel 6000 3800 2    60   UnSpc ~ 0
+Text HLabel 6000 3800 2    60   Output ~ 0
 SWR_ADC_B
 Wire Wire Line
 	6000 3700 4950 3700
@@ -500,20 +500,20 @@ Wire Wire Line
 Wire Wire Line
 	6900 3750 6900 3650
 Connection ~ 7200 3750
-Text HLabel 8450 3100 2    60   BiDi ~ 0
+Text HLabel 8450 3100 2    60   Input ~ 0
 TX_CHAIN
 Wire Wire Line
 	8450 3100 7950 3100
-Text HLabel 8450 2850 2    60   BiDi ~ 0
+Text HLabel 8450 2850 2    60   Input ~ 0
 RX_TX
-Text HLabel 8000 4000 2    60   BiDi ~ 0
+Text HLabel 8000 4000 2    60   Output ~ 0
 RX_CHAIN
 $Comp
 L INDUCTOR L?
 U 1 1 57E72AA5
 P 8050 2850
 F 0 "L?" V 8000 2850 50  0000 C CNN
-F 1 "1µH" V 8150 2850 50  0000 C CNN
+F 1 "10µH" V 8150 2850 50  0000 C CNN
 F 2 "" H 8050 2850 50  0000 C CNN
 F 3 "" H 8050 2850 50  0000 C CNN
 	1    8050 2850
