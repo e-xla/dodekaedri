@@ -13,7 +13,9 @@
 void SystemInit() {
 }
 
-uint8_t a = 0x60;
+const uint8_t addr_synth = 0x60; // SI5351 synthesizer I2C address
+const uint8_t addr_rfc = 0x1A;   // WM8731 used for zero-IF signal
+const uint8_t addr_afc = 0x1B;   // WM8731 used for microphone and headphone audio
 
 int i2cdelay = 20;
 void i2c_delay() {
@@ -88,6 +90,23 @@ void assert_failed(uint8_t *file, uint32_t line) {
 	print(l);
 }
 
+// The WM8731 registers have 7-bit addresses and 9-bit data
+// so the highest data bit of each register
+// is in lowest bit of the first byte.
+#define RFC_INIT_SIZE 11
+const uint8_t rfc_init[RFC_INIT_SIZE][2] = {
+{0x1E, 0x00}, // reset it first
+{0x00, 0x1F}, // maximum L line input volume, no mute
+{0x02, 0x1F}, // maximum R line input volume, no mute
+{0x04, 0x7F}, // maximum L headphone volume
+{0x06, 0x7F}, // maximum R headphone volume
+{0x08, (1<<1) | (0<<2)}, // mute mic in, line input to ADC
+{0x0A, (1<<0) | (0<<1)}, // disable ADC highpass, disable de-emphasis
+{0x0C, (1<<1)}, // power down mic bias
+{0x0E, (2<<0) | (0<<2) | (0<<6)}, // I2S format, 16-bit input audio data, slave mode
+{0x10, 0b0000<<2}, // (256fs oversampling, no frequency dividers), 48 kHz ADC and DAC
+{0x12, 0x01} // activate interface
+};
 
 
 int main() {
@@ -107,7 +126,12 @@ int main() {
 	// init SI5351
 	int reg_i;
 	for(reg_i = 0; reg_i < NUM_REGS_MAX; reg_i++) {
-		writereg(a, Reg_Store[reg_i].Reg_Addr, Reg_Store[reg_i].Reg_Val);
+		writereg(addr_synth, Reg_Store[reg_i].Reg_Addr, Reg_Store[reg_i].Reg_Val);
+	}
+
+	// init RF WM8731
+	for(reg_i = 0; reg_i < RFC_INIT_SIZE; reg_i++) {
+		writereg(addr_rfc, rfc_init[reg_i][0], rfc_init[reg_i][1]);
 	}
 
 
@@ -189,8 +213,16 @@ int main() {
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2); // I2S2_WS
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2); // I2S2_CK
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2); // I2S2_SD
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6,  GPIO_AF_SPI2); // I2S2_MCK
 	GPIO_Init(GPIOB, &(GPIO_InitTypeDef) {
 		.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_15,
+		.GPIO_Mode = GPIO_Mode_AF,
+		.GPIO_Speed = GPIO_Speed_50MHz,
+		.GPIO_OType = GPIO_OType_PP,
+		.GPIO_PuPd = GPIO_PuPd_NOPULL
+	});
+	GPIO_Init(GPIOC, &(GPIO_InitTypeDef) {
+		.GPIO_Pin = GPIO_PinSource6,
 		.GPIO_Mode = GPIO_Mode_AF,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_PP,
@@ -201,7 +233,7 @@ int main() {
 		.I2S_Mode = I2S_Mode_MasterTx,
 		.I2S_Standard = I2S_Standard_Phillips,
 		.I2S_DataFormat = I2S_DataFormat_16b,
-		.I2S_MCLKOutput = I2S_MCLKOutput_Disable,
+		.I2S_MCLKOutput = I2S_MCLKOutput_Enable,
 		.I2S_AudioFreq = I2S_AudioFreq_48k,
 		.I2S_CPOL = I2S_CPOL_Low
 	});
