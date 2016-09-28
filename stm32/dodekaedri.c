@@ -78,6 +78,16 @@ void print(char *data) {
 	}
 }
 
+const char hexnumbers[16] = "0123456789ABCDEF";
+void printhex(uint32_t v) {
+	char text[9];
+	int i;
+	for(i = 0; i < 8; i++)
+		text[i] = hexnumbers[0xF & v >> (4*(7-i))];
+	text[8] = '\0';
+	print(text);
+}
+
 void assert_failed(uint8_t *file, uint32_t line) {
 	char l[9] = "      \r\n";
 	print("\r\nAssert failed: ");
@@ -130,15 +140,26 @@ void tft_send(uint8_t *bytes, int n, int dc) {
 }
 
 
-void tft_data(uint8_t *data, int ndata, int first_byte_is_command) {
-	if(first_byte_is_command) {
-		tft_send(data, 1, 0);
-		tft_send(data+1, ndata-1, 1);
-	} else {
-		tft_send(data, ndata, 1);
-	}
+/* Functions used by the Adafruit TFT library for Arduino: */
+void writecommand(uint8_t v) {
+	tft_send(&v, 1, 1);
+	print("TFT command: ");
+	printhex(v);
+	print("\r\n");
 }
 
+void writedata(uint8_t v) {
+	tft_send(&v, 1, 1);
+}
+
+void delay(int ms) {
+	// some delay
+	int i, j;
+	for(i = 0; i < ms; i++) {
+		for(j = 0; j < 5000; j++) __asm("nop");
+	}
+}
+#include "tft/tft.h"
 
 
 int main() {
@@ -313,20 +334,25 @@ int main() {
 
 
 	// Display something
-	tft_data((uint8_t[]){0x01}, 1, 1); // reset
+	Adafruit_ST7735_commandList(Rcmd1);
+	Adafruit_ST7735_commandList(Rcmd2red);
+	Adafruit_ST7735_commandList(Rcmd3);
 	for(;;) {
-		tft_data((uint8_t[]){0x29}, 1, 1); // display on
-		tft_data((uint8_t[]){0x3A, 0x05}, 2, 1); // pixel format: 16 bit / pixel
+		writecommand(0x2A); // column address set
+		writedata(0);
+		writedata(10);
+		writedata(0);
+		writedata(30);
+		writecommand(0x2B); // row address set
+		writedata(0);
+		writedata(10);
+		writedata(0);
+		writedata(30);
 
-		tft_data((uint8_t[]){ 0x2A, 0x00, 0x00, 0x01, 0x00 }, 4, 1 ); // column address set
-		tft_data((uint8_t[]){ 0x2B, 0x00, 0x00, 0x01, 0x00 }, 4, 1 ); // row address set*/
-
-		uint8_t tftdata[1000];
-		tftdata[0] = 0x2C; // memory write command
 		int i;
-		for(i = 1; i < 1000; i++)
-			tftdata[i] = i;
-		tft_data(tftdata, 1000, 1);
+		for(i = 0; i < 10000; i++) {
+			writedata(i);
+		}
 	}
 
 	uint16_t audio = 0;
