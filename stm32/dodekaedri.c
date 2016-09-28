@@ -109,6 +109,63 @@ const uint8_t rfc_init[RFC_INIT_SIZE][2] = {
 };
 
 
+#define TFT_SPI SPI1
+#define TFT_CS_GPIO GPIOB
+#define TFT_CS_Pin GPIO_Pin_6
+
+void tft_send(uint8_t *bytes, int n) {
+	int i;
+	TFT_CS_GPIO->ODR &= ~TFT_CS_Pin;
+	for(i = 0; i < n; i++) {
+		while(!SPI_I2S_GetFlagStatus(TFT_SPI, SPI_I2S_FLAG_TXE));
+		SPI_I2S_SendData(TFT_SPI, bytes[i]);
+	}
+	while(SPI_I2S_GetFlagStatus(TFT_SPI, SPI_I2S_FLAG_BSY));
+	TFT_CS_GPIO->ODR |= TFT_CS_Pin;
+}
+
+
+void tft_command(uint8_t v) {
+	/* First transmitted bit is 0 for commands
+	   and it's followed by 8 command bits.
+	   STM32 doesn't seem to support 9 bit words in SPI communication
+	   so we transmit 16 bits with 7 extra bits after the command. */
+	uint8_t bytes[2];
+	bytes[0] = v >> 1;
+	bytes[1] = v << 7;
+	tft_send(bytes, 2);
+}
+
+
+void tft_data(uint8_t *data, int ndata) {
+	/* Total number of bytes transmitted should be 9/8 times
+	   the number of data bytes (rounded up).
+	   First transmitted bit of each "9 bit word" is 1 for data.
+	   FIXME: Now we actually rounding it up to next multiple of 9 bytes
+	   and reading a few bytes past end of the input data buffer.
+	   It needs a bit more code after the for loop to do it properly. */
+	int ntx = ((ndata+7) / 8) * 9;
+	uint8_t tx[ntx];
+	int i;
+	uint8_t *datablock = data, *txblock = tx;
+	for(i = 0; i < ndata; i += 8) {
+		txblock[0] =                     0x80 | (datablock[0]>>1);
+		txblock[1] = (datablock[0]<<7) | 0x40 | (datablock[1]>>2);
+		txblock[2] = (datablock[1]<<6) | 0x20 | (datablock[2]>>3);
+		txblock[3] = (datablock[2]<<5) | 0x10 | (datablock[3]>>4);
+		txblock[4] = (datablock[3]<<4) | 0x08 | (datablock[4]>>5);
+		txblock[5] = (datablock[4]<<3) | 0x04 | (datablock[5]>>6);
+		txblock[6] = (datablock[5]<<2) | 0x02 | (datablock[6]>>7);
+		txblock[7] = (datablock[6]<<1) | 0x01;
+		txblock[8] =  datablock[7];
+		datablock += 8;
+		txblock += 9;
+	}
+	tft_send(tx, ntx);
+}
+
+
+
 int main() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
@@ -161,6 +218,7 @@ int main() {
 	usart_enabled = 1;
 	print("\r\nHello world\r\n");
 
+
 	// SPI1 initialization
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);
@@ -169,6 +227,14 @@ int main() {
 	GPIO_Init(GPIOA, &(GPIO_InitTypeDef) {
 		.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7,
 		.GPIO_Mode = GPIO_Mode_AF,
+		.GPIO_Speed = GPIO_Speed_50MHz,
+		.GPIO_OType = GPIO_OType_PP,
+		.GPIO_PuPd = GPIO_PuPd_NOPULL
+	});
+
+	GPIO_Init(TFT_CS_GPIO, &(GPIO_InitTypeDef) {
+		.GPIO_Pin = TFT_CS_Pin,
+		.GPIO_Mode = GPIO_Mode_OUT,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_PP,
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
@@ -271,7 +337,23 @@ int main() {
 	I2S_Cmd(SPI3, ENABLE);
 
 
+	// Display something
+	tft_command(0x01); // reset
+	for(;;) {
+	tft_command(0x29); // display on
+	tft_command(0x3A); // pixel format:
+	tft_data((uint8_t[]){ 0x05 }, 1 ); // 16 bit/pixel
 
+	tft_command(0x2B); // row address set
+	tft_data((uint8_t[]){ 0x00, 0x00, 0x01, 0x00 }, 4 ); // 0 to 0x100
+
+	tft_command(0x2C); // memory write
+	uint8_t tftdata[1000];
+	int i;
+	for(i = 0; i < 1000; i++)
+		tftdata[i] = i;
+	tft_data(tftdata, 1000);
+	}
 
 	uint16_t audio = 0;
 	for(;;) {
