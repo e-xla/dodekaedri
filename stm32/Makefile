@@ -8,6 +8,10 @@ STDPERIPH=$(HOME)/Downloads/STM32F4xx_DSP_StdPeriph_Lib_V1.7.1
 DRIVER=$(STDPERIPH)/Libraries/STM32F4xx_StdPeriph_Driver
 
 CFLAGS=-g -O2 -Wall -Wextra -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSTM32F40XX -DUSE_STDPERIPH_DRIVER
+
+# Tell the library that our clock input has a frequency of 26 MHz
+CFLAGS+= "-DHSE_VALUE=((uint32_t)26000000)"
+
 CFLAGS+= -I$(STDPERIPH)/Libraries/CMSIS/Include
 CFLAGS+= -I$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Include
 CFLAGS+= -I$(STDPERIPH)/Libraries/STM32F4xx_StdPeriph_Driver/inc/
@@ -17,12 +21,12 @@ LDFLAGS= -TSTM32F401RETx_FLASH.ld -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloa
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-TARGETS=dodekaedri.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o
+OBJECTS=dodekaedri.o uart.o i2c.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o
 
 dodekaedri.bin: dodekaedri.elf
 	$(OBJCOPY) -O binary $^ $@
 
-dodekaedri.elf: $(TARGETS)
+dodekaedri.elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 stm32f4xx_gpio.o: $(DRIVER)/src/stm32f4xx_gpio.c stm32f4xx_conf.h
@@ -43,11 +47,17 @@ stm32f4xx_usart.o: $(DRIVER)/src/stm32f4xx_usart.c stm32f4xx_conf.h
 startup.o: $(STARTUP)
 	$(CC) $(CFLAGS) $^ -c -o $@
 
-dodekaedri.o: dodekaedri.c stm32f4xx_conf.h
+dodekaedri.o: dodekaedri.c uart.h i2c.h stm32f4xx_conf.h
 	$(CC) $(CFLAGS) dodekaedri.c -c -o $@
 
+i2c.o: i2c.c i2c.h stm32f4xx_conf.h
+	$(CC) $(CFLAGS) i2c.c -c -o $@
+
+uart.o: uart.c uart.h stm32f4xx_conf.h
+	$(CC) $(CFLAGS) uart.c -c -o $@
+
 clean:
-	rm dodekaedri.bin dodekaedri.elf $(TARGETS)
+	rm dodekaedri.bin dodekaedri.elf $(OBJECTS)
 
 .PHONY: clean
 
