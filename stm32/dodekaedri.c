@@ -37,12 +37,12 @@ const uint8_t rfc_init[RFC_INIT_SIZE][2] = {
 {0x02, 0x1F}, // maximum R line input volume, no mute
 {0x04, 0x7F}, // maximum L headphone volume
 {0x06, 0x7F}, // maximum R headphone volume
-{0x08, (1<<1) | (0<<2)}, // mute mic in, line input to ADC
-{0x0A, (1<<0) | (0<<1)}, // disable ADC highpass, disable de-emphasis
-{0x0C, (1<<1)}, // power down mic bias
-{0x0E, (2<<0) | (0<<2) | (0<<6)}, // I2S format, 16-bit input audio data, slave mode
-{0x10, 0b0000<<2}, // (256fs oversampling, no frequency dividers), 48 kHz ADC and DAC
-{0x12, 0x01} // activate interface
+{0x08, 0x12},
+{0x0A, 0x00},
+{0x0C, 0x02}, // power down mic bias
+{0x0E, 0x02}, // I2S format, 16-bit input audio data, slave mode
+{0x10, 0x00}, // (256fs oversampling, no frequency dividers), 48 kHz ADC and DAC
+{0x12, 0x01}  // activate interface
 };
 
 
@@ -180,7 +180,7 @@ int main() {
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
 	GPIO_Init(GPIOC, &(GPIO_InitTypeDef) {
-		.GPIO_Pin = GPIO_PinSource6,
+		.GPIO_Pin = GPIO_Pin_6,
 		.GPIO_Mode = GPIO_Mode_AF,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_PP,
@@ -234,30 +234,29 @@ int main() {
 	Adafruit_ST7735_commandList(Rcmd2red);
 	Adafruit_ST7735_commandList(Rcmd3);
 
-	uint16_t audio = 0;
-	int i = 4999, t = 0;
-	for(;;) {
-		//print("a");
-		// draw something on display while waiting for I2S
-		while(!SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE)) {
-			i++;
-			if(i >= 5000) {
-				i = 0;
-				t++;
-				writecommand(0x2A); // column address set
-				writedata(0);
-				writedata(50);
-				writedata(0);
-				writedata(100);
-				writecommand(0x2B); // row address set
-				writedata(0);
-				writedata(50);
-				writedata(0);
-				writedata(100);
-				writecommand(0x2C); // memory write
-			}
-			writedata(i * (i+t));
+	writecommand(0x2A); // column address set
+	writedata(0);
+	writedata(0);
+	writedata(0);
+	writedata(128);
+	writecommand(0x2B); // row address set
+	writedata(0);
+	writedata(0);
+	writedata(0);
+	writedata(240);
+	writecommand(0x2C); // memory write
+
+	int y;
+	for(y = 0; y < 240; y++) {
+		int x;
+		for(x = 0; x < 128; x++) {
+			writedata(x ^ y);
 		}
+	}
+
+	uint16_t audio = 0;
+	for(;;) {
+		while(!SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE));
 		SPI_I2S_SendData(SPI2, audio);
 		SPI_I2S_SendData(SPI3, -audio);
 		SPI_I2S_SendData(SPI1, 0x55);

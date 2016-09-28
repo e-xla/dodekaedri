@@ -31,7 +31,7 @@ void printhex(uint32_t v) {
 void printdec(uint32_t v) {
 	char text[11];
 	int i;
-	for(i = 8; i >= 0; i++) {
+	for(i = 9; i >= 0; i--) {
 		text[i] = '0' + (v % 10);
 		v = v / 10;
 	}
