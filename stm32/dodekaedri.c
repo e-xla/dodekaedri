@@ -142,10 +142,10 @@ void tft_send(uint8_t *bytes, int n, int dc) {
 
 /* Functions used by the Adafruit TFT library for Arduino: */
 void writecommand(uint8_t v) {
-	tft_send(&v, 1, 1);
-	print("TFT command: ");
+	tft_send(&v, 1, 0);
+	/*print("TFT command: ");
 	printhex(v);
-	print("\r\n");
+	print("\r\n");*/
 }
 
 void writedata(uint8_t v) {
@@ -243,7 +243,7 @@ int main() {
 		.SPI_CPOL = SPI_CPOL_Low,
 		.SPI_CPHA = SPI_CPHA_1Edge,
 		.SPI_NSS = SPI_NSS_Soft,
-		.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16,
+		.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2,
 		.SPI_FirstBit = SPI_FirstBit_MSB,
 		.SPI_CRCPolynomial = 7 // default value
 	});
@@ -333,32 +333,35 @@ int main() {
 	I2S_Cmd(SPI3, ENABLE);
 
 
-	// Display something
+	// Initialize display
 	Adafruit_ST7735_commandList(Rcmd1);
 	Adafruit_ST7735_commandList(Rcmd2red);
 	Adafruit_ST7735_commandList(Rcmd3);
-	for(;;) {
-		writecommand(0x2A); // column address set
-		writedata(0);
-		writedata(10);
-		writedata(0);
-		writedata(30);
-		writecommand(0x2B); // row address set
-		writedata(0);
-		writedata(10);
-		writedata(0);
-		writedata(30);
-
-		int i;
-		for(i = 0; i < 10000; i++) {
-			writedata(i);
-		}
-	}
 
 	uint16_t audio = 0;
+	int i = 4999, t = 0;
 	for(;;) {
 		//print("a");
-		while(!SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE));
+		// draw something on display while waiting for I2S
+		while(!SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE)) {
+			i++;
+			if(i >= 5000) {
+				i = 0;
+				t++;
+				writecommand(0x2A); // column address set
+				writedata(0);
+				writedata(50);
+				writedata(0);
+				writedata(100);
+				writecommand(0x2B); // row address set
+				writedata(0);
+				writedata(50);
+				writedata(0);
+				writedata(100);
+				writecommand(0x2C); // memory write
+			}
+			writedata(i * (i+t));
+		}
 		SPI_I2S_SendData(SPI2, audio);
 		SPI_I2S_SendData(SPI3, -audio);
 		SPI_I2S_SendData(SPI1, 0x55);
