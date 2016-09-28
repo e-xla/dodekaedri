@@ -125,23 +125,14 @@ void tft_send(uint8_t *bytes, int n) {
 }
 
 
-void tft_command(uint8_t v) {
-	/* First transmitted bit is 0 for commands
-	   and it's followed by 8 command bits.
-	   STM32 doesn't seem to support 9 bit words in SPI communication
-	   so we transmit 16 bits with 7 extra bits after the command. */
-	uint8_t bytes[2];
-	bytes[0] = v >> 1;
-	bytes[1] = v << 7;
-	tft_send(bytes, 2);
-}
-
-
-void tft_data(uint8_t *data, int ndata) {
+void tft_data(uint8_t *data, int ndata, int first_byte_is_command) {
 	/* Total number of bytes transmitted should be 9/8 times
 	   the number of data bytes (rounded up).
-	   First transmitted bit of each "9 bit word" is 1 for data.
-	   FIXME: Now we actually rounding it up to next multiple of 9 bytes
+	   First transmitted bit of each "9 bit word" is
+	   0 for command byte and 1 for data byte.
+
+	   FIXME: Now we actually rounding the number of transmitted bytes
+	   up to next multiple of 9 bytes
 	   and reading a few bytes past end of the input data buffer.
 	   It needs a bit more code after the for loop to do it properly. */
 	int ntx = ((ndata+7) / 8) * 9;
@@ -149,6 +140,9 @@ void tft_data(uint8_t *data, int ndata) {
 	int i;
 	uint8_t *datablock = data, *txblock = tx;
 	for(i = 0; i < ndata; i += 8) {
+		if(i == 0 && first_byte_is_command)
+		txblock[0] =                            (datablock[0]>>1);
+		else
 		txblock[0] =                     0x80 | (datablock[0]>>1);
 		txblock[1] = (datablock[0]<<7) | 0x40 | (datablock[1]>>2);
 		txblock[2] = (datablock[1]<<6) | 0x20 | (datablock[2]>>3);
@@ -338,21 +332,20 @@ int main() {
 
 
 	// Display something
-	tft_command(0x01); // reset
+	tft_data((uint8_t[]){0x01}, 1, 1); // reset
 	for(;;) {
-	tft_command(0x29); // display on
-	tft_command(0x3A); // pixel format:
-	tft_data((uint8_t[]){ 0x05 }, 1 ); // 16 bit/pixel
+		tft_data((uint8_t[]){0x29}, 1, 1); // display on
+		tft_data((uint8_t[]){0x3A, 0x05}, 2, 1); // pixel format: 16 bit / pixel
 
-	tft_command(0x2B); // row address set
-	tft_data((uint8_t[]){ 0x00, 0x00, 0x01, 0x00 }, 4 ); // 0 to 0x100
+		/*tft_data((uint8_t[]){ 0x2A, 0x00, 0x00, 0x01, 0x00 }, 4, 1 ); // column address set
+		tft_data((uint8_t[]){ 0x2B, 0x00, 0x00, 0x01, 0x00 }, 4, 1 ); // row address set*/
 
-	tft_command(0x2C); // memory write
-	uint8_t tftdata[1000];
-	int i;
-	for(i = 0; i < 1000; i++)
-		tftdata[i] = i;
-	tft_data(tftdata, 1000);
+		uint8_t tftdata[1000];
+		tftdata[0] = 0x2C; // memory write command
+		int i;
+		for(i = 1; i < 1000; i++)
+			tftdata[i] = i;
+		tft_data(tftdata, 1000, 1);
 	}
 
 	uint16_t audio = 0;
