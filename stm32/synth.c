@@ -1,3 +1,5 @@
+#include <stm32f4xx.h>
+#include <stm32f4xx_i2c.h>
 #include "i2c.h"
 
 const uint8_t addr_synth = 0x60; // SI5351 synthesizer I2C address

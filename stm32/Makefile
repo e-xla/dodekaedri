@@ -21,43 +21,44 @@ LDFLAGS= -TSTM32F401RETx_FLASH.ld -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloa
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-OBJECTS=dodekaedri.o uart.o i2c.o synth.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o
+OBJECTS=stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o uart.o i2c.o synth.o display.o audio.o dodekaedri.o
+
+%.o: %.c
+	$(CC) $(CFLAGS) $< -c -o $@
 
 dodekaedri.bin: dodekaedri.elf
-	$(OBJCOPY) -O binary $^ $@
+	$(OBJCOPY) -O binary $< $@
 
 dodekaedri.elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 stm32f4xx_gpio.o: $(DRIVER)/src/stm32f4xx_gpio.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_gpio.c -c -o $@
+	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_rcc.o: $(DRIVER)/src/stm32f4xx_rcc.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_rcc.c -c -o $@
+	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_spi.c -c -o $@
+	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_i2c.c -c -o $@
+	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_usart.o: $(DRIVER)/src/stm32f4xx_usart.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $(DRIVER)/src/stm32f4xx_usart.c -c -o $@
+	$(CC) $(CFLAGS) $< -c -o $@
 
 startup.o: $(STARTUP)
-	$(CC) $(CFLAGS) $^ -c -o $@
-
-dodekaedri.o: dodekaedri.c uart.h i2c.h stm32f4xx_conf.h
-	$(CC) $(CFLAGS) dodekaedri.c -c -o $@
-
-i2c.o: i2c.c i2c.h stm32f4xx_conf.h
-	$(CC) $(CFLAGS) i2c.c -c -o $@
+	$(CC) $(CFLAGS) $< -c -o $@
 
 uart.o: uart.c uart.h stm32f4xx_conf.h
-	$(CC) $(CFLAGS) uart.c -c -o $@
+
+i2c.o: i2c.c i2c.h stm32f4xx_conf.h
 
 synth.o: synth.c synth.h stm32f4xx_conf.h
-	$(CC) $(CFLAGS) synth.c -c -o $@
+
+display.o: display.c display.h stm32f4xx_conf.h
+
+dodekaedri.o: dodekaedri.c stm32f4xx_conf.h uart.h i2c.h synth.o display.o
 
 clean:
 	rm dodekaedri.bin dodekaedri.elf $(OBJECTS)
