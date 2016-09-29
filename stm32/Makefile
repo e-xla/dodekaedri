@@ -21,7 +21,7 @@ LDFLAGS= -TSTM32F401RETx_FLASH.ld -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloa
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-OBJECTS=dodekaedri.o uart.o i2c.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o
+OBJECTS=dodekaedri.o uart.o i2c.o synth.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o
 
 dodekaedri.bin: dodekaedri.elf
 	$(OBJCOPY) -O binary $^ $@
@@ -55,6 +55,9 @@ i2c.o: i2c.c i2c.h stm32f4xx_conf.h
 
 uart.o: uart.c uart.h stm32f4xx_conf.h
 	$(CC) $(CFLAGS) uart.c -c -o $@
+
+synth.o: synth.c synth.h stm32f4xx_conf.h
+	$(CC) $(CFLAGS) synth.c -c -o $@
 
 clean:
 	rm dodekaedri.bin dodekaedri.elf $(OBJECTS)
