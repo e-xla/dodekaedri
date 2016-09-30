@@ -26,6 +26,9 @@ OBJECTS=stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4
 %.o: %.c
 	$(CC) $(CFLAGS) $< -c -o $@
 
+%.o: $(DRIVER)/src/%.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
 dodekaedri.bin: dodekaedri.elf
 	$(OBJCOPY) -O binary $< $@
 
@@ -33,19 +36,14 @@ dodekaedri.elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 stm32f4xx_gpio.o: $(DRIVER)/src/stm32f4xx_gpio.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_rcc.o: $(DRIVER)/src/stm32f4xx_rcc.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $< -c -o $@
 
 stm32f4xx_usart.o: $(DRIVER)/src/stm32f4xx_usart.c stm32f4xx_conf.h
-	$(CC) $(CFLAGS) $< -c -o $@
 
 startup.o: $(STARTUP)
 	$(CC) $(CFLAGS) $< -c -o $@
