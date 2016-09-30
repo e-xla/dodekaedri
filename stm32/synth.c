@@ -6,28 +6,26 @@
 const uint8_t addr_synth = 0x60; // SI5351 synthesizer I2C address
 
 struct synth_init_t {
-	uint32_t msna_p1:20; // plla_int
-	uint32_t msna_p2:20; // plla_num
-
-	uint32_t msna_p3:20; // plla_den: 1 kHz step with 26 MHz reference
-
-	uint32_t r0_div; // divide by 100 -> 10 Hz step
-	unsigned ms0_p1:18;
-	unsigned ms0_p2:20;
-	unsigned ms0_p3:20;
+	uint32_t msna_p1:20;
+	uint32_t msna_p2:20;
+	uint32_t msna_p3:20;
+	uint32_t r0_div;
+	uint32_t ms0_p1:18;
+	uint32_t ms0_p2:20;
+	uint32_t ms0_p3:20;
 	unsigned ms0_divby4:2;
 	unsigned clk0_pdn:1;
-	unsigned ms0_int:1;
+	unsigned ms0_unsigned:1;
 	unsigned ms0_src:1;
 	unsigned clk0_inv:1;
 	unsigned clk0_src:2;
 	unsigned clk0_idrv:1;
 
-	unsigned ms1_p1:18;
-	unsigned ms1_p2:20;
-	unsigned ms1_p3:20;
+	uint32_t ms1_p1:18;
+	uint32_t ms1_p2:20;
+	uint32_t ms1_p3:20;
 	unsigned clk1_pdn:1;
-	unsigned ms1_int:1;
+	unsigned ms1_unsigned:1;
 	unsigned ms1_src:1;
 	unsigned clk1_inv:1;
 	unsigned clk1_src:2;
@@ -37,50 +35,63 @@ struct synth_init_t {
 	unsigned ms2_p2:20;
 	unsigned ms2_p3:20;
 	unsigned clk2_pdn:1;
-	unsigned ms2_int:1;
+	unsigned ms2_unsigned:1;
 	unsigned ms2_src:1;
 	unsigned clk2_inv:1;
 	unsigned clk2_src:2;
 	unsigned clk2_idrv:1;
 };
 void synth_init() {
-	uint32_t msna_p1 = 27; // plla_int
-	uint32_t msna_p2 = 4000; // plla_num
+	uint32_t msna_a = 27;    // integer part
+	uint32_t msna_b = 4000;  // numerator
+	uint32_t msna_c = 26000; // denominator: 1 kHz step with 26 MHz reference
 
-	uint32_t msna_p3 = 26000; // plla_den: 1 kHz step with 26 MHz reference
+	uint32_t ms0_a = 100;
+	uint32_t ms0_b = 0;
+	uint32_t ms0_c = 1;
 
-	uint32_t r0_div = 0;
-	uint32_t r1_div = 0;
-	int ms0_divby4 = 0;
-	int clk0_pdn = 0;
-	int ms0_int = 1;
-	int ms0_src = 0;
-	int clk0_inv = 0;
-	int clk0_src = 3;
-	int clk0_idrv = 0;
-	int clk0_phoff = 0;
-	int ms0_p1 = 100; // divide by 100 -> 10 Hz step
-	int ms0_p2 = 0;
-	int ms0_p3 = 1;
+	// equations from Silabs AN619 page 3:
+	uint32_t msna_p1 = 128 * msna_a + (128 * msna_b/msna_c) - 512;
+	uint32_t msna_p2 = 128 * msna_b - msna_c * (128 * msna_b/msna_c);
+	uint32_t msna_p3 = msna_c;
 
-	int ms1_divby4 = 0;
-	int clk1_pdn = 0;
-	int ms1_int = 1;
-	int ms1_src = 0;
-	int clk1_inv = 0;
-	int clk1_src = 3;
-	int clk1_idrv = 0;
-	int clk1_phoff = ms0_p1;
-	int ms1_p1 = ms0_p1;
-	int ms1_p2 = 0;
-	int ms1_p3 = 1;
+	// equations from Silabs AN619 page 6:
+	uint32_t ms0_p1 = 128 * ms0_a + (128 * ms0_b/ms0_c) - 512;
+	uint32_t ms0_p2 = 128 * ms0_b - ms0_c * (128 * ms0_b/ms0_c);
+	uint32_t ms0_p3 = ms0_c;
 
-	int clk2_pdn = 0;
-	int ms2_int = 1;
-	int ms2_src = 1;
-	int clk2_inv = 0;
-	int clk2_src = 0;
-	int clk2_idrv = 0;
+	unsigned r0_div = 0; // divide by 1
+	unsigned r1_div = 0;
+	unsigned ms0_divby4 = 0;
+	unsigned clk0_pdn = 0;
+	unsigned ms0_int = 1; // integer mode
+	unsigned ms0_src = 0;
+	unsigned clk0_inv = 0;
+	unsigned clk0_src = 3;
+	unsigned clk0_idrv = 0;
+	unsigned clk0_phoff = 0;
+
+	unsigned ms1_divby4 = 0;
+	unsigned clk1_pdn = 0;
+	unsigned ms1_unsigned = 1;
+	unsigned ms1_src = 0;
+	unsigned clk1_inv = 0;
+	unsigned clk1_src = 3;
+	unsigned clk1_idrv = 0;
+	unsigned clk1_phoff = ms0_p1;
+	uint32_t ms1_p1 = ms0_p1;
+	uint32_t ms1_p2 = ms0_p2;
+	uint32_t ms1_p3 = ms0_p3;
+
+	unsigned clk2_pdn = 0;
+	unsigned ms2_unsigned = 1;
+	unsigned ms2_src = 1;
+	unsigned clk2_inv = 0;
+	unsigned clk2_src = 0;
+	unsigned clk2_idrv = 0;
+
+	clk0_phoff = 0;
+	clk1_phoff = ms0_int;
 
 	uint8_t synth_init_regs[][2] = {
 	{177, 0b10100000}, // PLLA, PLLB reset
@@ -92,9 +103,9 @@ void synth_init() {
 	{ 15, 0b00000000}, // clkin divider 1, xtal input
 
 	// outputs:
-	{ 16, _BITS(7, clk0_pdn, 0, 0) | _BITS(6, ms0_int, 0, 0) | _BITS(5, ms0_src, 0, 0) | _BITS(4, clk0_inv, 0, 0) | _BITS(2, clk0_src, 1, 0) | _BITS(0, clk0_idrv, 1, 0)}, // CLK0: MS0 integer, PLLA, use MS0, 2 mA
-	{ 17, _BITS(7, clk1_pdn, 0, 0) | _BITS(6, ms1_int, 0, 0) | _BITS(5, ms1_src, 0, 0) | _BITS(4, clk1_inv, 0, 0) | _BITS(2, clk1_src, 1, 0) | _BITS(0, clk1_idrv, 1, 0)}, // CLK0: MS0 integer, PLLA, use MS0, 2 mA
-	{ 18, _BITS(7, clk2_pdn, 0, 0) | _BITS(6, ms2_int, 0, 0) | _BITS(5, ms2_src, 0, 0) | _BITS(4, clk2_inv, 0, 0) | _BITS(2, clk2_src, 1, 0) | _BITS(0, clk2_idrv, 1, 0)}, // CLK0: MS0 integer, PLLA, use MS0, 2 mA
+	{ 16, _BITS(7, clk0_pdn, 0, 0) | _BITS(6, ms0_int, 0, 0) | _BITS(5, ms0_src, 0, 0) | _BITS(4, clk0_inv, 0, 0) | _BITS(2, clk0_src, 1, 0) | _BITS(0, clk0_idrv, 1, 0)},
+	{ 17, _BITS(7, clk1_pdn, 0, 0) | _BITS(6, ms1_unsigned, 0, 0) | _BITS(5, ms1_src, 0, 0) | _BITS(4, clk1_inv, 0, 0) | _BITS(2, clk1_src, 1, 0) | _BITS(0, clk1_idrv, 1, 0)},
+	{ 18, _BITS(7, clk2_pdn, 0, 0) | _BITS(6, ms2_unsigned, 0, 0) | _BITS(5, ms2_src, 0, 0) | _BITS(4, clk2_inv, 0, 0) | _BITS(2, clk2_src, 1, 0) | _BITS(0, clk2_idrv, 1, 0)},
 
 	// PLL feedback dividers:
 	{ 26, _BITS(0, msna_p3, 15, 8)},
@@ -106,9 +117,7 @@ void synth_init() {
 	{ 32, _BITS(0, msna_p2, 15, 8)},
 	{ 33, _BITS(0, msna_p2, 7, 0)},
 
-	/* MS0:
-	fractional part probably doesn't matter since we use
-	the multisynth in integer mode but let's set it to 0/1 */
+	/* MS0: */
 	{ 42, _BITS(0, ms0_p3, 15, 8)},
 	{ 43, _BITS(0, ms0_p3, 7, 0)},
 	{ 44, _BITS(4, r0_div, 2, 0) | _BITS(2, ms0_divby4, 1, 0) | _BITS(0, ms0_p1, 17, 16)}, // R0 divide by 1, MS0 divide by other than 4
@@ -128,15 +137,15 @@ void synth_init() {
 	{ 56, _BITS(0, ms1_p2, 15, 8)},
 	{ 57, _BITS(0, ms1_p2, 7, 0)},
 
-	{165, _BITS(0, clk0_phoff, 6, 0)}, // CLK0 phase offset: 0
-	{166, _BITS(0, clk1_phoff, 6, 0)}, // CLK1 phase offset equal to ms1_int -> 90 degree phase shift
+	{165, _BITS(0, clk0_phoff, 6, 0)},
+	{166, _BITS(0, clk1_phoff, 6, 0)},
 
 
 	{0xFF, 0xFF} // end of table
 	};
 
 	// init SI5351
-	int reg_i;
+	unsigned reg_i;
 	for(reg_i = 0;; reg_i++) {
 		uint8_t r = synth_init_regs[reg_i][0], v = synth_init_regs[reg_i][1];
 		if(r == 0xFF && v == 0xFF) break;
