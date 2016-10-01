@@ -15,7 +15,7 @@ struct synth_init_t {
 	uint32_t ms0_p3:20;
 	unsigned ms0_divby4:2;
 	unsigned clk0_pdn:1;
-	unsigned ms0_unsigned:1;
+	unsigned ms0_int:1;
 	unsigned ms0_src:1;
 	unsigned clk0_inv:1;
 	unsigned clk0_src:2;
@@ -25,7 +25,7 @@ struct synth_init_t {
 	uint32_t ms1_p2:20;
 	uint32_t ms1_p3:20;
 	unsigned clk1_pdn:1;
-	unsigned ms1_unsigned:1;
+	unsigned ms1_int:1;
 	unsigned ms1_src:1;
 	unsigned clk1_inv:1;
 	unsigned clk1_src:2;
@@ -35,7 +35,7 @@ struct synth_init_t {
 	unsigned ms2_p2:20;
 	unsigned ms2_p3:20;
 	unsigned clk2_pdn:1;
-	unsigned ms2_unsigned:1;
+	unsigned ms2_int:1;
 	unsigned ms2_src:1;
 	unsigned clk2_inv:1;
 	unsigned clk2_src:2;
@@ -67,31 +67,28 @@ void synth_init() {
 	unsigned ms0_int = 1; // integer mode
 	unsigned ms0_src = 0;
 	unsigned clk0_inv = 0;
-	unsigned clk0_src = 3;
+	unsigned clk0_src = 3; // CLK0 from MS0
 	unsigned clk0_idrv = 0;
 	unsigned clk0_phoff = 0;
 
 	unsigned ms1_divby4 = 0;
 	unsigned clk1_pdn = 0;
-	unsigned ms1_unsigned = 1;
+	unsigned ms1_int = 1;
 	unsigned ms1_src = 0;
 	unsigned clk1_inv = 0;
-	unsigned clk1_src = 3;
+	unsigned clk1_src = 3; // CLK1 from MS1
 	unsigned clk1_idrv = 0;
-	unsigned clk1_phoff = ms0_p1;
+	unsigned clk1_phoff = ms0_a; // 90 degree shift: phase offset parameter equal to ms0 divider
 	uint32_t ms1_p1 = ms0_p1;
 	uint32_t ms1_p2 = ms0_p2;
 	uint32_t ms1_p3 = ms0_p3;
 
 	unsigned clk2_pdn = 0;
-	unsigned ms2_unsigned = 1;
+	unsigned ms2_int = 1;
 	unsigned ms2_src = 1;
 	unsigned clk2_inv = 0;
-	unsigned clk2_src = 0;
+	unsigned clk2_src = 0; // CLK2 directly from crystal
 	unsigned clk2_idrv = 0;
-
-	clk0_phoff = 0;
-	clk1_phoff = ms0_int;
 
 	uint8_t synth_init_regs[][2] = {
 	{177, 0b10100000}, // PLLA, PLLB reset
@@ -104,8 +101,8 @@ void synth_init() {
 
 	// outputs:
 	{ 16, _BITS(7, clk0_pdn, 0, 0) | _BITS(6, ms0_int, 0, 0) | _BITS(5, ms0_src, 0, 0) | _BITS(4, clk0_inv, 0, 0) | _BITS(2, clk0_src, 1, 0) | _BITS(0, clk0_idrv, 1, 0)},
-	{ 17, _BITS(7, clk1_pdn, 0, 0) | _BITS(6, ms1_unsigned, 0, 0) | _BITS(5, ms1_src, 0, 0) | _BITS(4, clk1_inv, 0, 0) | _BITS(2, clk1_src, 1, 0) | _BITS(0, clk1_idrv, 1, 0)},
-	{ 18, _BITS(7, clk2_pdn, 0, 0) | _BITS(6, ms2_unsigned, 0, 0) | _BITS(5, ms2_src, 0, 0) | _BITS(4, clk2_inv, 0, 0) | _BITS(2, clk2_src, 1, 0) | _BITS(0, clk2_idrv, 1, 0)},
+	{ 17, _BITS(7, clk1_pdn, 0, 0) | _BITS(6, ms1_int, 0, 0) | _BITS(5, ms1_src, 0, 0) | _BITS(4, clk1_inv, 0, 0) | _BITS(2, clk1_src, 1, 0) | _BITS(0, clk1_idrv, 1, 0)},
+	{ 18, _BITS(7, clk2_pdn, 0, 0) | _BITS(6, ms2_int, 0, 0) | _BITS(5, ms2_src, 0, 0) | _BITS(4, clk2_inv, 0, 0) | _BITS(2, clk2_src, 1, 0) | _BITS(0, clk2_idrv, 1, 0)},
 
 	// PLL feedback dividers:
 	{ 26, _BITS(0, msna_p3, 15, 8)},
@@ -120,7 +117,7 @@ void synth_init() {
 	/* MS0: */
 	{ 42, _BITS(0, ms0_p3, 15, 8)},
 	{ 43, _BITS(0, ms0_p3, 7, 0)},
-	{ 44, _BITS(4, r0_div, 2, 0) | _BITS(2, ms0_divby4, 1, 0) | _BITS(0, ms0_p1, 17, 16)}, // R0 divide by 1, MS0 divide by other than 4
+	{ 44, _BITS(4, r0_div, 2, 0) | _BITS(2, ms0_divby4, 1, 0) | _BITS(0, ms0_p1, 17, 16)},
 	{ 45, _BITS(0, ms0_p1, 15, 8)},
 	{ 46, _BITS(0, ms0_p1, 7, 0)},
 	{ 47, _BITS(4, ms0_p3, 19, 16) | _BITS(0, ms0_p2, 19, 16)},
@@ -130,22 +127,34 @@ void synth_init() {
 	/* MS1: */
 	{ 50, _BITS(0, ms1_p3, 15, 8)},
 	{ 51, _BITS(0, ms1_p3, 7, 0)},
-	{ 52, _BITS(4, r1_div, 2, 0) | _BITS(2, ms1_divby4, 1, 0) | _BITS(0, ms1_p1, 17, 16)}, // R0 divide by 1, MS0 divide by other than 4
+	{ 52, _BITS(4, r1_div, 2, 0) | _BITS(2, ms1_divby4, 1, 0) | _BITS(0, ms1_p1, 17, 16)},
 	{ 53, _BITS(0, ms1_p1, 15, 8)},
 	{ 54, _BITS(0, ms1_p1, 7, 0)},
 	{ 55, _BITS(4, ms1_p3, 19, 16) | _BITS(0, ms1_p2, 19, 16)},
 	{ 56, _BITS(0, ms1_p2, 15, 8)},
 	{ 57, _BITS(0, ms1_p2, 7, 0)},
 
+	/* http://community.silabs.com/t5/Timing/Difficulty-setting-phase-on-Si5351/m-p/143111#M239:
+	- set CLK0_PHOFF and CLK1_PHOFF
+	- reset PLLA (maybe PLLB too?)
+	- set CLK1_PHOFF to 0
+	- reset PLLA
+	- set CLK1_PHOFF
+	- reset PLLA
+	*/
 	{165, _BITS(0, clk0_phoff, 6, 0)},
 	{166, _BITS(0, clk1_phoff, 6, 0)},
-
+	{177, 0b10100000}, // reset PLLA, PLLB
+	{166, 0},
+	{177, 0b00100000}, // reset PLLA
+	{166, _BITS(0, clk1_phoff, 6, 0)},
+	{177, 0b00100000}, // reset PLLA
 
 	{0xFF, 0xFF} // end of table
 	};
 
 	// init SI5351
-	unsigned reg_i;
+	int reg_i;
 	for(reg_i = 0;; reg_i++) {
 		uint8_t r = synth_init_regs[reg_i][0], v = synth_init_regs[reg_i][1];
 		if(r == 0xFF && v == 0xFF) break;
