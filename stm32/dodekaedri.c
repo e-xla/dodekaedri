@@ -4,6 +4,7 @@
 #include <stm32f4xx_gpio.h>
 #include <stm32f4xx_i2c.h>
 #include <stm32f4xx_usart.h>
+#include <arm_math.h>
 
 #include "uart.h"
 #include "i2c.h"
@@ -23,11 +24,22 @@ void assert_failed(uint8_t *file, uint32_t line) {
 	print("\r\n");
 }
 
+// GPIO to use for random tests during development
+#define DEV_GPIO GPIOC
+#define DEV_PIN GPIO_Pin_3
 
 int main() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+
+	GPIO_Init(DEV_GPIO, &(GPIO_InitTypeDef) {
+		.GPIO_Pin = DEV_PIN,
+		.GPIO_Mode = GPIO_Mode_OUT,
+		.GPIO_Speed = GPIO_Speed_50MHz,
+		.GPIO_OType = GPIO_OType_PP,
+		.GPIO_PuPd = GPIO_PuPd_UP
+	});
 
 	uart_init();
 
@@ -80,14 +92,54 @@ int main() {
 			writedata(x ^ y);
 		}
 	}
+#define FIRLEN 131
+	q15_t firbuf[2*FIRLEN];
+	q15_t filtertapsr[FIRLEN] = {-5799,-8143,-10073,-11233,-11315,-10104,-7508,-3581,1473,7319,13513,19552,24919,29141,31839,32767,31839,29141,24919,19552,13513,7319,1473,-3581,-7508,-10104,-11315,-11233,-10073,-8143,-5799};
+	q15_t filtertapsi[FIRLEN] = {571,-964,-3493,-6884,-10880,-15121,-19182,-22611,-24984,-25951,-25282,-22893,-18863,-13434,-6986,0,6986,13434,18863,22893,25282,25951,24984,22611,19182,15121,10880,6884,3493,964,-571};
+	q15_t *firp = firbuf;
+	int firidx = 0;
 
-	uint16_t audio = 0;
+	int16_t atxl = 0x8000, atxr = 0x8000;
 	for(;;) {
-		while(!SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE));
-		SPI_I2S_SendData(SPI2, audio);
-		SPI_I2S_SendData(SPI3, -audio);
-		SPI_I2S_SendData(SPI1, 0x55);
-		audio += 1234;
+		int16_t arxl, arxr;
+		int64_t outr, outi;
+		while(!SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE));
+		DEV_GPIO->ODR |= DEV_PIN;
+		arxl = SPI_I2S_ReceiveData(SPI2);
+		SPI_I2S_SendData(SPI2, atxl);
+		SPI_I2S_SendData(SPI3, atxl);
+		DEV_GPIO->ODR &= ~DEV_PIN;
+
+		while(!SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE));
+		DEV_GPIO->ODR |= DEV_PIN; // for measuring time required for DSP
+		arxr = SPI_I2S_ReceiveData(SPI2);
+		SPI_I2S_SendData(SPI2, atxr);
+		SPI_I2S_SendData(SPI3, atxr);
+
+
+		// "circular buffer"
+		firp[0] = firp[FIRLEN] = arxl;
+		(void)arxr;
+		firidx++;
+		if(firidx >= FIRLEN) firidx = 0;
+		firp = firbuf;
+
+		// dot product of complex and real vectors
+		arm_dot_prod_q15(filtertapsr, firp, FIRLEN, &outr);
+		arm_dot_prod_q15(filtertapsi, firp, FIRLEN, &outi);
+
+		// scale and saturate
+		outr >>= 40;
+		outi >>= 40;
+		if(outr > 0x7FFF) outr = 0x7FFF;
+		else if(outr < -0x8000) outr = -0x8000;
+		if(outi > 0x7FFF) outi = 0x7FFF;
+		else if(outi < -0x8000) outi = -0x8000;
+
+		atxl = outr;
+		atxr = outi;
+
+		DEV_GPIO->ODR &= ~DEV_PIN;
 	}
 	return 0;
 }

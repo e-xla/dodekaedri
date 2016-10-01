@@ -35,13 +35,24 @@ void audio_init_converters() {
 
 void audio_init_bus() {
 	// I2S2 initialization
+	I2S_InitTypeDef inits =
+	(I2S_InitTypeDef) {
+		.I2S_Mode = I2S_Mode_MasterTx,
+		.I2S_Standard = I2S_Standard_Phillips,
+		.I2S_DataFormat = I2S_DataFormat_16b,
+		.I2S_MCLKOutput = I2S_MCLKOutput_Enable,
+		.I2S_AudioFreq = I2S_AudioFreq_48k,
+		.I2S_CPOL = I2S_CPOL_Low
+	};
+
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE); // I2S2
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2); // I2S2_WS
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2); // I2S2_CK
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2); // I2S2_SD
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_I2S2ext); // I2S2_extSD (input)
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2); // I2S2_SD (output)
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6,  GPIO_AF_SPI2); // I2S2_MCK
 	GPIO_Init(GPIOB, &(GPIO_InitTypeDef) {
-		.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_15,
+		.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15,
 		.GPIO_Mode = GPIO_Mode_AF,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_PP,
@@ -55,22 +66,18 @@ void audio_init_bus() {
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
 
-	I2S_Init(SPI2, &(I2S_InitTypeDef) {
-		.I2S_Mode = I2S_Mode_MasterTx,
-		.I2S_Standard = I2S_Standard_Phillips,
-		.I2S_DataFormat = I2S_DataFormat_16b,
-		.I2S_MCLKOutput = I2S_MCLKOutput_Enable,
-		.I2S_AudioFreq = I2S_AudioFreq_48k,
-		.I2S_CPOL = I2S_CPOL_Low
-	});
+	I2S_Init(SPI2, &inits);
+	I2S_FullDuplexConfig(I2S2ext, &inits);
 	I2S_Cmd(SPI2, ENABLE);
-
+	I2S_Cmd(I2S2ext, ENABLE);
 
 	// I2S3 initialization
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE); // I2S3
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_SPI3); // I2S3_CK
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource12, GPIO_AF_SPI3); // I2S3_SD
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource15, GPIO_AF_SPI3); // I2S3_WS
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7,  GPIO_AF_SPI2); // I2S3_MCK
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_SPI3); // I2S3_CK
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource11, GPIO_AF_I2S3ext); // I2S3_extSD (input)
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource12, GPIO_AF_SPI3); // I2S3_SD (output)
 	GPIO_Init(GPIOA, &(GPIO_InitTypeDef) {
 		.GPIO_Pin = GPIO_Pin_15,
 		.GPIO_Mode = GPIO_Mode_AF,
@@ -79,20 +86,15 @@ void audio_init_bus() {
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
 	GPIO_Init(GPIOC, &(GPIO_InitTypeDef) {
-		.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_12,
+		.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12,
 		.GPIO_Mode = GPIO_Mode_AF,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_PP,
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
 
-	I2S_Init(SPI3, &(I2S_InitTypeDef) {
-		.I2S_Mode = I2S_Mode_MasterTx,
-		.I2S_Standard = I2S_Standard_Phillips,
-		.I2S_DataFormat = I2S_DataFormat_16b,
-		.I2S_MCLKOutput = I2S_MCLKOutput_Disable,
-		.I2S_AudioFreq = I2S_AudioFreq_48k,
-		.I2S_CPOL = I2S_CPOL_Low
-	});
+	I2S_Init(SPI3, &inits);
+	I2S_FullDuplexConfig(I2S3ext, &inits);
 	I2S_Cmd(SPI3, ENABLE);
+	I2S_Cmd(I2S3ext, ENABLE);
 }

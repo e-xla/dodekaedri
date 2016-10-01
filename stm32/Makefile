@@ -6,22 +6,23 @@ OBJCOPY=arm-none-eabi-objcopy
 STDPERIPH=$(HOME)/Downloads/STM32F4xx_DSP_StdPeriph_Lib_V1.7.1
 
 DRIVER=$(STDPERIPH)/Libraries/STM32F4xx_StdPeriph_Driver
+DSP_LIB=$(STDPERIPH)/Libraries/CMSIS/DSP_Lib/Source
 
-CFLAGS=-g -O2 -Wall -Wextra -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSTM32F40XX -DUSE_STDPERIPH_DRIVER
+CFLAGS=-g -O2 -Wall -Wextra -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSTM32F40XX -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4
 
 # Tell the library that our clock input has a frequency of 26 MHz
 CFLAGS+= "-DHSE_VALUE=((uint32_t)26000000)"
 
 CFLAGS+= -I$(STDPERIPH)/Libraries/CMSIS/Include
 CFLAGS+= -I$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Include
-CFLAGS+= -I$(STDPERIPH)/Libraries/STM32F4xx_StdPeriph_Driver/inc/
+CFLAGS+= -I$(STDPERIPH)/Libraries/STM32F4xx_StdPeriph_Driver/inc
 CFLAGS+= -I.
 
 LDFLAGS= -TSTM32F401RETx_FLASH.ld -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-OBJECTS=stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o uart.o i2c.o synth.o display.o audio.o dodekaedri.o
+OBJECTS=arm_dot_prod_q15.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o uart.o i2c.o synth.o display.o audio.o dodekaedri.o
 
 %.o: %.c
 	$(CC) $(CFLAGS) $< -c -o $@
@@ -29,11 +30,16 @@ OBJECTS=stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4
 %.o: $(DRIVER)/src/%.c
 	$(CC) $(CFLAGS) $< -c -o $@
 
+%.o: $(DSP_LIB)/*/%.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
 dodekaedri.bin: dodekaedri.elf
 	$(OBJCOPY) -O binary $< $@
 
 dodekaedri.elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) $^ -o $@
+
+arm_dot_prod_q15.o: $(DSP_LIB)/BasicMathFunctions/arm_dot_prod_q15.c
 
 stm32f4xx_gpio.o: $(DRIVER)/src/stm32f4xx_gpio.c stm32f4xx_conf.h
 
