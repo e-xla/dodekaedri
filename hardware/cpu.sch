@@ -1,4 +1,5 @@
 EESchema Schematic File Version 2
+LIBS:dodekaedri-rescue
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -1053,9 +1054,11 @@ F 3 "" H 5750 6600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L encoder SW806
+L encoder-RESCUE-dodekaedri SW806
 U 1 1 57EB2E07
 P 5850 5900
+AR Path="/57EB2E07" Ref="SW806"  Part="1" 
+AR Path="/57E5C816/57EB2E07" Ref="SW806"  Part="1" 
 F 0 "SW806" V 6050 5900 60  0000 C CNN
 F 1 "encoder" V 5650 5900 60  0000 C CNN
 F 2 "dodekaedri:encoder" H 5850 5750 60  0001 C CNN
@@ -1097,9 +1100,11 @@ F 3 "" H 6550 6600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L encoder SW809
+L encoder-RESCUE-dodekaedri SW809
 U 1 1 57EB76AB
 P 6650 5900
+AR Path="/57EB76AB" Ref="SW809"  Part="1" 
+AR Path="/57E5C816/57EB76AB" Ref="SW809"  Part="1" 
 F 0 "SW809" V 6850 5900 60  0000 C CNN
 F 1 "encoder" V 6450 5900 60  0000 C CNN
 F 2 "dodekaedri:encoder" H 6650 5750 60  0001 C CNN
@@ -2301,7 +2306,7 @@ U 1 1 57F4B5B1
 P 850 6850
 F 0 "D802" H 850 6950 50  0000 C CNN
 F 1 "PMEG6020EP" H 800 6750 50  0000 C CNN
-F 2 "Diodes_SMD:SOD-523" H 850 6850 50  0001 C CNN
+F 2 "Diodes_SMD:D_0805" H 850 6850 50  0001 C CNN
 F 3 "" H 850 6850 50  0000 C CNN
 	1    850  6850
 	1    0    0    -1  
