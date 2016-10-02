@@ -17,11 +17,11 @@ void audio_init_converters() {
 	{0x1E, 0x00}, // reset it first
 	{0x00, 0x1F}, // maximum L line input volume, no mute
 	{0x02, 0x1F}, // maximum R line input volume, no mute
-	{0x04, 0x7F}, // maximum L headphone volume
-	{0x06, 0x7F}, // maximum R headphone volume
-	{0x08, 0x12},
-	{0x0A, 0x00},
-	{0x0C, 0x02}, // power down mic bias
+	{0x04, 0x7F-6}, // 0 dB headphone gain
+	{0x06, 0x7F-6}, // 0 dB headphone gain
+	{0x08, 0x12}, // select DAC, select line in to ADC, mute mic input
+	{0x0A, 0x01}, // disable ADC HPF and deemphasis
+	{0x0C, 0x62}, // power down mic bias, oscillator and CLKOUT
 	{0x0E, 0x02}, // I2S format, 16-bit input audio data, slave mode
 	{0x10, 0x00}, // (256fs oversampling, no frequency dividers), 48 kHz ADC and DAC
 	{0x12, 0x01}  // activate interface

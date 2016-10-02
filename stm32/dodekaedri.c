@@ -28,7 +28,7 @@ void assert_failed(uint8_t *file, uint32_t line) {
 #define DEV_GPIO GPIOC
 #define DEV_PIN GPIO_Pin_3
 
-int gainl = 10, gainr = 10;
+int gainl = 1, gainr = 1;
 
 int main() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -106,12 +106,17 @@ int main() {
 	SPI_I2S_SendData(SPI2, 0x5555);
 
 	int16_t atxl = 0x8000, atxr = 0x8000;
+	int16_t arxl = 3699, arxr = 3699;
+	int16_t t = 0;
 	for(;;) {
-		int16_t arxl=0, arxr=0;
 		int64_t outr, outi;
 		for(;;) {
+			/* TODO: Read flags directly from registers
+			   instead of using these functions.
+			   Looks like they are using too much CPU time
+			   so it doesn't work properly. */
 			DEV_GPIO->ODR &= ~DEV_PIN;
-			while(!SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE));
+			while(!SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE));
 			DEV_GPIO->ODR |= DEV_PIN;
 
 			if(SPI_I2S_GetFlagStatus(SPI2, I2S_FLAG_CHSIDE)) {
@@ -120,11 +125,13 @@ int main() {
 				SPI_I2S_SendData(SPI2, atxl);
 			}
 
-			if(SPI_I2S_GetFlagStatus(I2S2ext, I2S_FLAG_CHSIDE)) {
-				arxr = SPI_I2S_ReceiveData(SPI2);
-				break;
-			} else {
-				arxl = SPI_I2S_ReceiveData(SPI2);
+			if(SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE)) {
+				if(SPI_I2S_GetFlagStatus(I2S2ext, I2S_FLAG_CHSIDE)) {
+					arxr = SPI_I2S_ReceiveData(I2S2ext);
+					break; // process the sample
+				} else {
+					arxl = SPI_I2S_ReceiveData(I2S2ext);
+				}
 			}
 		}
 
@@ -145,7 +152,10 @@ int main() {
 		outi >>= 40;
 #else
 		outr = gainl * arxl;
-		outi = gainr * arxr;
+		//outi = gainr * arxr;
+		(void)arxr;
+		outi = t; // sawtooth wave in right channel
+		t += 10;
 #endif
 		if(outr > 0x7FFF) outr = 0x7FFF;
 		else if(outr < -0x8000) outr = -0x8000;
@@ -154,6 +164,7 @@ int main() {
 
 		atxl = outr;
 		atxr = outi;
+		USART1->DR = ((uint16_t)atxl) >> 8;
 	}
 	return 0;
 }
