@@ -28,6 +28,8 @@ void assert_failed(uint8_t *file, uint32_t line) {
 #define DEV_GPIO GPIOC
 #define DEV_PIN GPIO_Pin_3
 
+int gainl = 10, gainr = 10;
+
 int main() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
@@ -93,30 +95,40 @@ int main() {
 		}
 	}
 #define FIRLEN 131
+#if 0
 	q15_t firbuf[2*FIRLEN];
 	q15_t filtertapsr[FIRLEN] = {-5799,-8143,-10073,-11233,-11315,-10104,-7508,-3581,1473,7319,13513,19552,24919,29141,31839,32767,31839,29141,24919,19552,13513,7319,1473,-3581,-7508,-10104,-11315,-11233,-10073,-8143,-5799};
 	q15_t filtertapsi[FIRLEN] = {571,-964,-3493,-6884,-10880,-15121,-19182,-22611,-24984,-25951,-25282,-22893,-18863,-13434,-6986,0,6986,13434,18863,22893,25282,25951,24984,22611,19182,15121,10880,6884,3493,964,-571};
 	q15_t *firp = firbuf;
 	int firidx = 0;
+#endif
+	// transmit some data so the transfer gets started
+	SPI_I2S_SendData(SPI2, 0x5555);
 
 	int16_t atxl = 0x8000, atxr = 0x8000;
 	for(;;) {
-		int16_t arxl, arxr;
+		int16_t arxl=0, arxr=0;
 		int64_t outr, outi;
-		while(!SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE));
-		DEV_GPIO->ODR |= DEV_PIN;
-		arxl = SPI_I2S_ReceiveData(SPI2);
-		SPI_I2S_SendData(SPI2, atxl);
-		SPI_I2S_SendData(SPI3, atxl);
-		DEV_GPIO->ODR &= ~DEV_PIN;
+		for(;;) {
+			DEV_GPIO->ODR &= ~DEV_PIN;
+			while(!SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE));
+			DEV_GPIO->ODR |= DEV_PIN;
 
-		while(!SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE));
-		DEV_GPIO->ODR |= DEV_PIN; // for measuring time required for DSP
-		arxr = SPI_I2S_ReceiveData(SPI2);
-		SPI_I2S_SendData(SPI2, atxr);
-		SPI_I2S_SendData(SPI3, atxr);
+			if(SPI_I2S_GetFlagStatus(SPI2, I2S_FLAG_CHSIDE)) {
+				SPI_I2S_SendData(SPI2, atxr);
+			} else {
+				SPI_I2S_SendData(SPI2, atxl);
+			}
 
+			if(SPI_I2S_GetFlagStatus(I2S2ext, I2S_FLAG_CHSIDE)) {
+				arxr = SPI_I2S_ReceiveData(SPI2);
+				break;
+			} else {
+				arxl = SPI_I2S_ReceiveData(SPI2);
+			}
+		}
 
+#if 0
 		// "circular buffer"
 		firp[0] = firp[FIRLEN] = arxl;
 		(void)arxr;
@@ -131,6 +143,10 @@ int main() {
 		// scale and saturate
 		outr >>= 40;
 		outi >>= 40;
+#else
+		outr = gainl * arxl;
+		outi = gainr * arxr;
+#endif
 		if(outr > 0x7FFF) outr = 0x7FFF;
 		else if(outr < -0x8000) outr = -0x8000;
 		if(outi > 0x7FFF) outi = 0x7FFF;
@@ -138,8 +154,6 @@ int main() {
 
 		atxl = outr;
 		atxr = outi;
-
-		DEV_GPIO->ODR &= ~DEV_PIN;
 	}
 	return 0;
 }
