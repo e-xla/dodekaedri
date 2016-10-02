@@ -654,7 +654,7 @@ Text Label 4950 3400 0    25   ~ 0
 RFLRC
 Text HLabel 5225 3775 0    50   BiDi ~ 0
 RF_CHAIN_I2S
-Text HLabel 2100 2050 0    50   Input ~ 0
+Text HLabel 2050 2250 0    50   Input ~ 0
 CLK_CPU
 Text Notes 2800 2950 2    60   ~ 0
 ADC
@@ -1241,9 +1241,9 @@ Connection ~ 2600 1250
 Wire Wire Line
 	2200 3100 1600 3100
 Wire Wire Line
-	1600 3100 1600 3200
+	1600 3200 1600 3100
 Wire Wire Line
-	1600 3200 750  3200
+	750  3200 1600 3200
 Wire Wire Line
 	750  3200 750  3050
 Connection ~ 1050 3200
@@ -1316,9 +1316,9 @@ Wire Wire Line
 	8900 1300 8900 1250
 Connection ~ 9100 1300
 Wire Wire Line
-	9400 850  9400 1450
+	9400 1450 9400 850 
 Wire Wire Line
-	9400 1450 8900 1450
+	8900 1450 9400 1450
 Connection ~ 9100 850 
 Connection ~ 9100 1450
 Wire Wire Line
@@ -1351,7 +1351,7 @@ Connection ~ 6450 3400
 Wire Wire Line
 	8900 3300 9000 3300
 Wire Wire Line
-	9000 3300 9000 4200
+	9000 4200 9000 3300
 Wire Notes Line
 	7675 3150 7675 3250
 Wire Notes Line
@@ -1557,9 +1557,9 @@ Wire Wire Line
 Wire Wire Line
 	3650 3950 3650 4800
 Wire Wire Line
-	2100 2050 2150 2050
+	2050 2250 2150 2250
 Wire Wire Line
-	2150 2050 2150 2100
+	2150 2250 2150 2300
 Wire Wire Line
 	1400 2150 1400 2800
 Wire Wire Line
@@ -1698,7 +1698,7 @@ Wire Wire Line
 Wire Wire Line
 	6100 5600 5950 5600
 Wire Wire Line
-	6650 6300 6900 6300
+	6900 6300 6650 6300
 Wire Wire Line
 	6900 5400 6900 7400
 Wire Wire Line
@@ -1912,7 +1912,7 @@ Wire Wire Line
 Wire Wire Line
 	7450 4450 7700 4450
 Wire Wire Line
-	9000 4200 8000 4200
+	8000 4200 9000 4200
 Wire Wire Line
 	8050 4050 5900 4050
 Wire Wire Line
@@ -2099,9 +2099,9 @@ CPURST
 Wire Bus Line
 	5950 1600 5450 1600
 Wire Bus Line
-	5450 1600 5450 1000
+	5450 1000 5450 1600
 Wire Bus Line
-	5450 1000 3950 1000
+	3950 1000 5450 1000
 $Comp
 L R R807
 U 1 1 57F26EED
@@ -2256,21 +2256,19 @@ Text Label 1000 7100 2    60   ~ 0
 PA11/USB
 Text Label 2200 2200 2    60   ~ 0
 PC15
-Text Label 2200 2300 2    60   ~ 0
-PH0
+Text Label 2200 2100 2    60   ~ 0
+PC14
 Text Label 2200 2400 2    60   ~ 0
 PH1
-Text Label 1900 6950 2    60   ~ 0
-PC15
 Text Label 1900 7050 2    60   ~ 0
-PH0
+PC15
+Text Label 1900 6850 2    60   ~ 0
+PC14
 Text Label 1900 7150 2    60   ~ 0
 PH1
 Text Label 2200 2000 2    60   ~ 0
 PC13
-Wire Wire Line
-	2150 2100 2200 2100
-Text Label 1900 6850 2    60   ~ 0
+Text Label 1900 6950 2    60   ~ 0
 PC13
 Text Label 2200 2900 2    60   ~ 0
 PC3
@@ -2750,4 +2748,6 @@ F 3 "" H 1500 7600 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 NoConn ~ 1100 7300
+Wire Wire Line
+	2150 2300 2200 2300
 $EndSCHEMATC
