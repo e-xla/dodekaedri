@@ -1,6 +1,7 @@
 #include <stm32f4xx.h>
 #include <stm32f4xx_spi.h>
 #include <stm32f4xx_rcc.h>
+#include <stm32f4xx_flash.h>
 #include <stm32f4xx_gpio.h>
 #include <stm32f4xx_i2c.h>
 #include <stm32f4xx_usart.h>
@@ -31,6 +32,7 @@ void assert_failed(uint8_t *file, uint32_t line) {
 volatile int gainl = 20, gainr = 20;
 
 int main() {
+	int c;
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
@@ -60,16 +62,45 @@ int main() {
 	RCC_WaitForHSEStartUp();
 	print("HSE started up\r\n");
 
-	RCC_PLLConfig(RCC_PLLSource_HSE, 13, 50, 2, 4);
+	/* Divide by 13 to get 2 MHz to main PLL and PLLI2S.
+	   Multiply by 84 and divide by 2 to get 84 MHz PLLCLK.
+	   AHB prescaler is 1  => 84 MHz CPU clock (maximum allowed),
+	   APB1 prescaler is 2 => 42 MHz PCLK1 (maximum allowed).
+	   APB2 prescaler is 1 => 84 MHz PCLK2.
+	   The CPU clock frequency needs 2 flash wait states
+	   but we will use prefetch and cache to speed it up. */
+	RCC_PLLConfig(RCC_PLLSource_HSE, 13, 84, 2, 4);
 	RCC_PLLCmd(ENABLE);
 
 	RCC_I2SCLKConfig(RCC_I2S2CLKSource_PLLI2S);
 	RCC_PLLI2SConfig(72,3);
 	RCC_PLLI2SCmd(ENABLE);
 
-	print("Waiting for PLLI2S\r\n");
-	while(!RCC_GetFlagStatus(RCC_FLAG_PLLI2SRDY));
-	print("PLLI2S ready\r\n");
+	RCC_HCLKConfig(RCC_SYSCLK_Div1); // AHB
+	RCC_PCLK1Config(RCC_HCLK_Div2);  // APB1
+	RCC_PCLK2Config(RCC_HCLK_Div1);  // APB2
+
+	FLASH_SetLatency(FLASH_Latency_2);
+	FLASH_PrefetchBufferCmd(ENABLE);
+	FLASH_InstructionCacheCmd(ENABLE);
+	FLASH_DataCacheCmd(ENABLE);
+
+	print("Waiting for PLL and PLLI2S\r\n");
+	c = 0;
+	while(!RCC_GetFlagStatus(RCC_FLAG_PLLRDY)) c++;
+	printdec(c);
+	print(" PLL ready. Switching system clock\r\n");
+	uart_deinit();
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+
+	// reinitialize UART for new clock frequency
+	uart_init();
+	print("System clock switched\r\n");
+
+	c = 0;
+	while(!RCC_GetFlagStatus(RCC_FLAG_PLLI2SRDY)) c++;
+	printdec(c);
+	print(" PLLI2S ready\r\n");
 
 	// Initialize I2S and audio DAC/ADC
 	audio_init_converters();
@@ -95,7 +126,7 @@ int main() {
 		}
 	}
 #define FIRLEN 31
-#if 0
+#if 1
 	q15_t firbuf[2*FIRLEN];
 	q15_t filtertapsr[FIRLEN] = {-5799,-8143,-10073,-11233,-11315,-10104,-7508,-3581,1473,7319,13513,19552,24919,29141,31839,32767,31839,29141,24919,19552,13513,7319,1473,-3581,-7508,-10104,-11315,-11233,-10073,-8143,-5799};
 	q15_t filtertapsi[FIRLEN] = {571,-964,-3493,-6884,-10880,-15121,-19182,-22611,-24984,-25951,-25282,-22893,-18863,-13434,-6986,0,6986,13434,18863,22893,25282,25951,24984,22611,19182,15121,10880,6884,3493,964,-571};
@@ -133,7 +164,7 @@ int main() {
 			}
 		}
 
-#if 0
+#if 1
 		// "circular buffer"
 		firp[0] = firp[FIRLEN] = arxl;
 		(void)arxr;
@@ -162,7 +193,7 @@ int main() {
 
 		atxl = outr;
 		atxr = outi;
-		USART1->DR = ((uint16_t)atxl) >> 8;
+		//USART1->DR = ((uint16_t)atxl) >> 8;
 	}
 	return 0;
 }

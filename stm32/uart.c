@@ -67,3 +67,9 @@ void uart_init() {
 	usart_enabled = 1;
 	print("\r\nUART initialized\r\n");
 }
+
+
+void uart_deinit() {
+	USART_Cmd(USART1, DISABLE);
+	USART_DeInit(USART1);
+}
