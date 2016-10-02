@@ -28,7 +28,7 @@ void assert_failed(uint8_t *file, uint32_t line) {
 #define DEV_GPIO GPIOC
 #define DEV_PIN GPIO_Pin_3
 
-int gainl = 1, gainr = 1;
+volatile int gainl = 20, gainr = 20;
 
 int main() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -94,43 +94,41 @@ int main() {
 			writedata(x ^ y);
 		}
 	}
-#define FIRLEN 131
+#define FIRLEN 31
 #if 0
 	q15_t firbuf[2*FIRLEN];
 	q15_t filtertapsr[FIRLEN] = {-5799,-8143,-10073,-11233,-11315,-10104,-7508,-3581,1473,7319,13513,19552,24919,29141,31839,32767,31839,29141,24919,19552,13513,7319,1473,-3581,-7508,-10104,-11315,-11233,-10073,-8143,-5799};
 	q15_t filtertapsi[FIRLEN] = {571,-964,-3493,-6884,-10880,-15121,-19182,-22611,-24984,-25951,-25282,-22893,-18863,-13434,-6986,0,6986,13434,18863,22893,25282,25951,24984,22611,19182,15121,10880,6884,3493,964,-571};
 	q15_t *firp = firbuf;
 	int firidx = 0;
+#else
+	int16_t t = 0;
 #endif
 	// transmit some data so the transfer gets started
 	SPI_I2S_SendData(SPI2, 0x5555);
 
 	int16_t atxl = 0x8000, atxr = 0x8000;
 	int16_t arxl = 3699, arxr = 3699;
-	int16_t t = 0;
+#define SPIFLAG(spi, flag) ((spi)->SR & (flag))
 	for(;;) {
 		int64_t outr, outi;
 		for(;;) {
-			/* TODO: Read flags directly from registers
-			   instead of using these functions.
-			   Looks like they are using too much CPU time
-			   so it doesn't work properly. */
 			DEV_GPIO->ODR &= ~DEV_PIN;
-			while(!SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE));
+			while(!SPIFLAG(SPI2, SPI_I2S_FLAG_TXE));
 			DEV_GPIO->ODR |= DEV_PIN;
 
-			if(SPI_I2S_GetFlagStatus(SPI2, I2S_FLAG_CHSIDE)) {
-				SPI_I2S_SendData(SPI2, atxr);
+			if(SPIFLAG(SPI2, I2S_FLAG_CHSIDE)) {
+				SPI2->DR = atxr;
 			} else {
-				SPI_I2S_SendData(SPI2, atxl);
+				SPI2->DR = atxl;
 			}
 
-			if(SPI_I2S_GetFlagStatus(I2S2ext, SPI_I2S_FLAG_RXNE)) {
-				if(SPI_I2S_GetFlagStatus(I2S2ext, I2S_FLAG_CHSIDE)) {
-					arxr = SPI_I2S_ReceiveData(I2S2ext);
+			if(SPIFLAG(I2S2ext, SPI_I2S_FLAG_RXNE)) {
+				if(SPIFLAG(I2S2ext, I2S_FLAG_CHSIDE)) {
+					arxr = I2S2ext->DR;
 					break; // process the sample
 				} else {
-					arxl = SPI_I2S_ReceiveData(I2S2ext);
+					arxl = I2S2ext->DR;
 				}
 			}
 		}
