@@ -74,7 +74,7 @@ void audio_init_bus() {
 	// I2S3 initialization
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE); // I2S3
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource15, GPIO_AF_SPI3); // I2S3_WS
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7,  GPIO_AF_SPI2); // I2S3_MCK
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7,  GPIO_AF_SPI3); // I2S3_MCK
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_SPI3); // I2S3_CK
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource11, GPIO_AF_I2S3ext); // I2S3_extSD (input)
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource12, GPIO_AF_SPI3); // I2S3_SD (output)
