@@ -68,8 +68,6 @@ void audio_init_bus() {
 
 	I2S_Init(SPI2, &inits);
 	I2S_FullDuplexConfig(I2S2ext, &inits);
-	I2S_Cmd(SPI2, ENABLE);
-	I2S_Cmd(I2S2ext, ENABLE);
 
 	// I2S3 initialization
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE); // I2S3
@@ -95,6 +93,13 @@ void audio_init_bus() {
 
 	I2S_Init(SPI3, &inits);
 	I2S_FullDuplexConfig(I2S3ext, &inits);
+
+	SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
+	I2S_Cmd(SPI2, ENABLE);
+	I2S_Cmd(I2S2ext, ENABLE);
 	I2S_Cmd(SPI3, ENABLE);
 	I2S_Cmd(I2S3ext, ENABLE);
+	// transmit something to get transfer started
+	SPI2->DR = 3699;
+	SPI3->DR = 3699;
 }

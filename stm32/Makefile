@@ -22,7 +22,7 @@ LDFLAGS= -TSTM32F401RETx_FLASH.ld -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloa
 
 STARTUP=$(STDPERIPH)/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f401xx.s
 
-OBJECTS=arm_dot_prod_q15.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_flash.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o startup.o uart.o i2c.o synth.o display.o audio.o dodekaedri.o
+OBJECTS=arm_dot_prod_q15.o stm32f4xx_gpio.o stm32f4xx_rcc.o stm32f4xx_flash.o stm32f4xx_spi.o stm32f4xx_i2c.o stm32f4xx_usart.o misc.o startup.o uart.o i2c.o synth.o display.o audio.o dodekaedri.o
 
 %.o: %.c
 	$(CC) $(CFLAGS) $< -c -o $@
@@ -52,6 +52,8 @@ stm32f4xx_spi.o: $(DRIVER)/src/stm32f4xx_spi.c stm32f4xx_conf.h
 stm32f4xx_i2c.o: $(DRIVER)/src/stm32f4xx_i2c.c stm32f4xx_conf.h
 
 stm32f4xx_usart.o: $(DRIVER)/src/stm32f4xx_usart.c stm32f4xx_conf.h
+
+misc.o: $(DRIVER)/src/misc.c stm32f4xx_conf.h
 
 startup.o: $(STARTUP)
 	$(CC) $(CFLAGS) $< -c -o $@

@@ -5,6 +5,7 @@
 #include <stm32f4xx_gpio.h>
 #include <stm32f4xx_i2c.h>
 #include <stm32f4xx_usart.h>
+#include <misc.h>
 #include <arm_math.h>
 
 #include "uart.h"
@@ -29,12 +30,35 @@ void assert_failed(uint8_t *file, uint32_t line) {
 #define DEV_GPIO GPIOC
 #define DEV_PIN GPIO_Pin_3
 
+
+
 volatile int gainl = 1, gainr = 1;
 
-/*
-// Test if copying DSP code in RAM improves speed
-__attribute__((section(".data")))
-*/
+#define SPIFLAG(spi, flag) ((spi)->SR & (flag))
+int sawtooth = 0;
+void SPI2_IRQHandler() {
+	int16_t rxsample;
+	/* Handler for empty TX buffer in SPI2:
+	   read I2S_FLAG_CHSIDE to see if the TX buffer is
+	   waiting for left or right channel.
+	*/
+	DEV_GPIO->ODR |= DEV_PIN;
+	int test = 'A';
+	if(SPIFLAG(SPI2, I2S_FLAG_CHSIDE)) {
+		test += 2;
+	}
+	if(SPIFLAG(I2S2ext, I2S_FLAG_CHSIDE)) {
+		test += 1;
+	}
+	SPI2->DR = (sawtooth += 1234);
+	USART1->DR = test;
+	/* There should also be a sample ready in the RX buffer. */
+	rxsample = I2S2ext->DR;
+	DEV_GPIO->ODR &= ~DEV_PIN;
+	(void)rxsample;
+}
+
+
 void dsploop() {
 #define FIRLEN 31
 #if 0
@@ -52,7 +76,6 @@ void dsploop() {
 	int16_t atxl = 0x8000, atxr = 0x8000;
 	int16_t arxl = 3699, arxr = 3699;
 	uint8_t atxl_uart_hi = 0;
-#define SPIFLAG(spi, flag) ((spi)->SR & (flag))
 	for(;;) {
 		int64_t outr, outi;
 		for(;;) {
@@ -184,34 +207,66 @@ int main() {
 	printdec(c);
 	print(" PLLI2S ready\r\n");
 
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	NVIC_Init(&(NVIC_InitTypeDef) {
+		.NVIC_IRQChannel = SPI2_IRQn,
+		.NVIC_IRQChannelPreemptionPriority = 1,
+		.NVIC_IRQChannelSubPriority = 0,
+		.NVIC_IRQChannelCmd = ENABLE
+	});
+
 	// Initialize I2S and audio DAC/ADC
 	audio_init_converters();
 	audio_init_bus();
 
-	writecommand(0x2A); // column address set
-	writedata(0);
-	writedata(0);
-	writedata(0);
-	writedata(128);
-	writecommand(0x2B); // row address set
-	writedata(0);
-	writedata(0);
-	writedata(0);
-	writedata(240);
-	writecommand(0x2C); // memory write
+	int t;
+	for(t=0;;t++) {
+		writecommand(0x2A); // column address set
+		writedata(0);
+		writedata(0);
+		writedata(0);
+		writedata(128);
+		writecommand(0x2B); // row address set
+		writedata(0);
+		writedata(0);
+		writedata(0);
+		writedata(240);
+		writecommand(0x2C); // memory write
 
-	int y;
-	for(y = 0; y < 240; y++) {
-		int x;
-		for(x = 0; x < 128; x++) {
-			writedata(x ^ y);
+		int y;
+		for(y = 0; y < 240; y++) {
+			int x;
+			for(x = 0; x < 128; x++) {
+				writedata((x + t) ^ y);
+			}
 		}
 	}
-	dsploop();
 	return 0;
 }
 
 
 void _exit(__attribute__((unused)) int asdf) {
 	for(;;);
+}
+
+
+void HardFault_Handler() {
+	for(;;) {
+		DEV_GPIO->ODR ^= DEV_PIN;
+		USART1->DR = 'H';
+	}
+}
+
+void BusFault_Handler() {
+	for(;;) {
+		DEV_GPIO->ODR ^= DEV_PIN;
+		USART1->DR = 'B';
+	}
+}
+
+void UsageFault_Handler() {
+	for(;;) {
+		DEV_GPIO->ODR ^= DEV_PIN;
+		USART1->DR = 'U';
+	}
 }
