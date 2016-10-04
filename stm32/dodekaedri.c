@@ -126,14 +126,15 @@ int main() {
 		writedata(0);
 		writedata(0);
 		writedata(0);
-		writedata(240);
+		writedata(160);
 		writecommand(0x2C); // memory write
 
 		int y;
-		for(y = 0; y < 240; y++) {
+		for(y = 0; y < 160; y++) {
 			int x;
 			for(x = 0; x < 128; x++) {
 				writedata((x + t) ^ y);
+				writedata(t ^ (y + t));
 			}
 		}
 	}
