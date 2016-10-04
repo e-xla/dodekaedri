@@ -1,8 +1,8 @@
 % MATLAB or Octave script to design the SSB filter used in tests
 
 firlen = 31;
-clow = 300;
-chigh = 3000;
+clow = -3000;
+chigh = -300;
 fs = 48000;
 
 cbw = (chigh-clow);
@@ -13,6 +13,9 @@ t = (1:firlen) - ((firlen+1)/2);
 f1 = sinc((cbw / fs) * t);
 f = f1 .* exp((2j*pi * ccenter/fs) * t);
 %f = f1;
+
+% remove DC
+f = f - mean(f);
 
 figure(1);
 freqz(f);

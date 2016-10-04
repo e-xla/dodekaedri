@@ -69,7 +69,7 @@ void synth_init() {
 	unsigned clk0_inv = 0;
 	unsigned clk0_src = 3; // CLK0 from MS0
 	unsigned clk0_idrv = 0;
-	unsigned clk0_phoff = 0;
+	unsigned clk0_phoff = ms0_a; // 90 degree shift: phase offset parameter equal to ms0 divider
 
 	unsigned ms1_divby4 = 0;
 	unsigned clk1_pdn = 0;
@@ -78,7 +78,7 @@ void synth_init() {
 	unsigned clk1_inv = 0;
 	unsigned clk1_src = 3; // CLK1 from MS1
 	unsigned clk1_idrv = 0;
-	unsigned clk1_phoff = ms0_a; // 90 degree shift: phase offset parameter equal to ms0 divider
+	unsigned clk1_phoff = 0;
 	uint32_t ms1_p1 = ms0_p1;
 	uint32_t ms1_p2 = ms0_p2;
 	uint32_t ms1_p3 = ms0_p3;
@@ -141,12 +141,15 @@ void synth_init() {
 	- reset PLLA
 	- set CLK1_PHOFF
 	- reset PLLA
+	- (CLK0 and CLK1 swapped here to make CLK1 leading)
 	*/
 	{165, _BITS(0, clk0_phoff, 6, 0)},
 	{166, _BITS(0, clk1_phoff, 6, 0)},
 	{177, 0b10100000}, // reset PLLA, PLLB
+	{165, 0},
 	{166, 0},
 	{177, 0b00100000}, // reset PLLA
+	{165, _BITS(0, clk0_phoff, 6, 0)},
 	{166, _BITS(0, clk1_phoff, 6, 0)},
 	{177, 0b00100000}, // reset PLLA
 
