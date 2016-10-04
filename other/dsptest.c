@@ -1,10 +1,8 @@
-#include <stdint.h>
-#include <stm32f4xx_spi.h>
-#include <stm32f4xx_usart.h>
-#include <arm_math.h>
+// small program to test DSP code on PC before trying to run it on the transceiver
 
-#include "dodekaedri.h"
-#include "dsp.h"
+#include <stdint.h>
+#include <math.h>
+#include <stdio.h>
 
 #if 1
 #define FIRLEN 32
@@ -22,29 +20,8 @@ int16_t *firp0 = firbuf0, *firp1 = firbuf1;
 int firidx = 0;
 
 
-#define SPIFLAG(spi, flag) ((spi)->SR & (flag))
-int sawtooth = 0;
-int16_t rxsamp[2], txsamp[2];
 uint32_t agc_filter = 0;
-void SPI2_IRQHandler() {
-	//int64_t outr = 0, outi = 0, out;
-	/* Handler for empty TX buffer in SPI2:
-	   read I2S_FLAG_CHSIDE to see if the TX buffer is
-	   waiting for left or right channel.
-	*/
-	DEV_GPIO->ODR |= DEV_PIN;
-	if(SPIFLAG(SPI2, I2S_FLAG_CHSIDE)) {
-		/* Ready to put "right" channel in TX buffer.
-		   We have also received "left" channel. */
-		rxsamp[0] = I2S2ext->DR;
-		SPI2->DR = txsamp[1];
-	} else {
-		/* Ready to put "left" channel in TX buffer,
-		   i.e. first part of the next sample to transmit.
-		   We have now also received "right" channel
-		   so we have received one complete sample. */
-		rxsamp[1] = I2S2ext->DR;
-
+void samplehandler(int16_t *rxsamp, int16_t *txsamp) {
 		// "circular buffer"
 		firp0[0] = firp0[FIRLEN] = rxsamp[0];
 		firp1[0] = firp1[FIRLEN] = rxsamp[1];
@@ -64,7 +41,7 @@ void SPI2_IRQHandler() {
 		int32_t o = ((uint64_t)acc) >> 5; // avoid overflow in filter of length 32
 		uint32_t o_agc = (o>=0) ? o : -o;
 		agc_filter += (o_agc - agc_filter) >> 10;
-		uint32_t agc_gain = 0xFFFFFFFFUL / (agc_filter >> 8);
+		uint32_t agc_gain = 0xFFFFFFFFUL / ((agc_filter >> 8)+1);
 
 		int32_t out = ((int64_t)o * agc_gain) >> 32;
 
@@ -75,8 +52,20 @@ void SPI2_IRQHandler() {
 
 		txsamp[0] = out;
 		txsamp[1] = out;
+}
 
-		SPI2->DR = txsamp[0];
+int main() {
+	int16_t rxsamp[2], txsamp[2];
+	int i;
+	double ph=0;
+	// test with a chirp
+	for(i = 0; i < 100000; i++) {
+		ph += M_PI * (((double)i / 10000.0)*2.0-1.0);
+		while(ph >= M_PI) ph -= M_PI*2.0;
+		rxsamp[0] = 0.1*i*cos(ph);
+		rxsamp[1] = 0.1*i*sin(ph);
+		samplehandler(rxsamp, txsamp);
+		fwrite(txsamp, 4, 1, stdout);
 	}
-	DEV_GPIO->ODR &= ~DEV_PIN;
+	return 0;
 }
