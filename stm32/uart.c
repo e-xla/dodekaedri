@@ -56,7 +56,7 @@ void uart_init() {
 		.GPIO_PuPd = GPIO_PuPd_UP
 	});
 	USART_Init(USART1, &(USART_InitTypeDef) {
-		.USART_BaudRate = 1500000,
+		.USART_BaudRate = 4000000,
 		.USART_WordLength = USART_WordLength_8b,
 		.USART_StopBits = USART_StopBits_1,
 		.USART_Parity = USART_Parity_No,
