@@ -26,7 +26,7 @@ int firidx = 0;
 int sawtooth = 0;
 int16_t rxsamp[2], txsamp[2];
 void SPI2_IRQHandler() {
-	int64_t outr = 0, outi = 0, out;
+	//int64_t outr = 0, outi = 0, out;
 	/* Handler for empty TX buffer in SPI2:
 	   read I2S_FLAG_CHSIDE to see if the TX buffer is
 	   waiting for left or right channel.
@@ -53,9 +53,16 @@ void SPI2_IRQHandler() {
 		firp1 = firbuf1 + firidx;
 
 		// dot product of complex and real vectors
-		arm_dot_prod_q15(filtertaps0, firp0, FIRLEN, &outr);
+		/*arm_dot_prod_q15(filtertaps0, firp0, FIRLEN, &outr);
 		arm_dot_prod_q15(filtertaps1, firp1, FIRLEN, &outi);
-		out = (outr+outi)>>8;
+		out = (outr+outi)>>8;*/
+		int32_t acc = 0;
+		int i;
+		for(i = 0; i < FIRLEN; i++) {
+			acc += ((int32_t)filtertaps0[i] * firp0[i]) >> 16;
+			acc += ((int32_t)filtertaps1[i] * firp1[i]) >> 16;
+		}
+		int32_t out = acc >> 4;
 
 		if(out > 0x7FFF) out = 0x7FFF;
 		else if(out < -0x8000) out = -0x8000;

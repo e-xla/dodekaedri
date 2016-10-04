@@ -67,11 +67,12 @@ synth.o: synth.c synth.h stm32f4xx_conf.h
 display.o: display.c display.h stm32f4xx_conf.h
 
 dsp.o: dsp.c dsp.h stm32f4xx_conf.h
+	$(CC) $(CFLAGS) $< -Wa,-aslh -c -o $@ > dsp_assembled.s
 
 dodekaedri.o: dodekaedri.c stm32f4xx_conf.h uart.h i2c.h synth.o display.o
 
 clean:
-	rm dodekaedri.bin dodekaedri.elf $(OBJECTS)
+	rm dodekaedri.bin dodekaedri.elf $(OBJECTS) dsp_assembled.s
 
 .PHONY: clean
 
