@@ -56,17 +56,23 @@ void SPI2_IRQHandler() {
 		int64_t acc = 0;
 		int i;
 		for(i = 0; i < FIRLEN; i+=2) {
-			acc += (filtertaps0[i] * firp0[i]);
-			acc += (filtertaps1[i] * firp1[i]);
-			acc += (filtertaps0[i+1] * firp0[i+1]);
-			acc += (filtertaps1[i+1] * firp1[i+1]);
+			acc += (int32_t)filtertaps0[i] * firp0[i];
+			acc += (int32_t)filtertaps1[i] * firp1[i];
+			acc += (int32_t)filtertaps0[i+1] * firp0[i+1];
+			acc += (int32_t)filtertaps1[i+1] * firp1[i+1];
 		}
 		int32_t o = ((uint64_t)acc) >> 5; // avoid overflow in filter of length 32
-		uint32_t o_agc = (o>=0) ? o : -o;
-		agc_filter += (o_agc - agc_filter) >> 10;
-		uint32_t agc_gain = 0xFFFFFFFFUL / (agc_filter >> 8);
 
-		int32_t out = ((int64_t)o * agc_gain) >> 32;
+		uint32_t o_agc = (o>=0) ? o : -o; // rectify
+		if(o_agc >= agc_filter) // attack faster than decay
+			agc_filter += (o_agc - agc_filter) >> 4;
+		else
+			agc_filter -= (agc_filter - o_agc) >> 10;
+		uint32_t agc_gain = 0xFFFFFFFFUL / ((agc_filter >> 14)+1);
+		//agc_gain = 0x10000;
+
+		// bit shift for signed values is undefined so write it as division
+		int32_t out = ((int64_t)o * agc_gain) / 4294967296LL;
 
 		if(out > 0x7FFF) out = 0x7FFF;
 		else if(out < -0x8000) out = -0x8000;
