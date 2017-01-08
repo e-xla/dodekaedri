@@ -1,4 +1,4 @@
-update=su  8. tammikuuta 2017 02.38.38
+update=su  8. tammikuuta 2017 10.01.02
 version=1
 last_client=kicad
 [cvpcb]
@@ -16,25 +16,6 @@ NetFmtName=
 SpiceForceRefPrefix=0
 SpiceUseNetNumbers=0
 LabSize=60
-[pcbnew]
-version=1
-PageLayoutDescrFile=
-LastNetListRead=dodekaedri_u5.net
-PadDrill=0.762
-PadDrillOvalY=0.762
-PadSizeH=1.524
-PadSizeV=1.524
-PcbTextSizeV=1.5
-PcbTextSizeH=1.5
-PcbTextThickness=0.3
-ModuleTextSizeV=1
-ModuleTextSizeH=1
-ModuleTextSizeThickness=0.15
-SolderMaskClearance=0.2
-SolderMaskMinWidth=0
-DrawSegmentWidth=0.2
-BoardOutlineThickness=0.15
-ModuleOutlineThickness=0.15
 [eeschema]
 version=1
 LibDir=
@@ -72,3 +53,22 @@ LibName30=valves
 LibName31=dodekaedri
 LibName32=Oscillators
 LibName33=stm32
+[pcbnew]
+version=1
+PageLayoutDescrFile=
+LastNetListRead=dodekaedri_u7.net
+PadDrill=0.762
+PadDrillOvalY=0.762
+PadSizeH=1.524
+PadSizeV=1.524
+PcbTextSizeV=1.5
+PcbTextSizeH=1.5
+PcbTextThickness=0.3
+ModuleTextSizeV=1
+ModuleTextSizeH=1
+ModuleTextSizeThickness=0.15
+SolderMaskClearance=0
+SolderMaskMinWidth=0
+DrawSegmentWidth=0.2
+BoardOutlineThickness=0.15
+ModuleOutlineThickness=0.15
