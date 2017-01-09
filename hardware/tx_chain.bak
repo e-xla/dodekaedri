@@ -760,7 +760,7 @@ Wire Wire Line
 Connection ~ 9100 5250
 Connection ~ 8000 2800
 $Comp
-L LED D501
+L LED-RESCUE-dodekaedri D501
 U 1 1 57F06BC9
 P 5700 3600
 F 0 "D501" H 5700 3700 50  0000 C CNN

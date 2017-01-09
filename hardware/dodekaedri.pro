@@ -1,4 +1,4 @@
-update=su  8. tammikuuta 2017 10.01.02
+update=Mon 09 Jan 2017 03:49:26 PM EET
 version=1
 last_client=kicad
 [cvpcb]
@@ -56,7 +56,7 @@ LibName33=stm32
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=dodekaedri_u7.net
+LastNetListRead=dodekaedri_u8.net
 PadDrill=0.762
 PadDrillOvalY=0.762
 PadSizeH=1.524
