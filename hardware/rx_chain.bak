@@ -344,11 +344,6 @@ Wire Wire Line
 Wire Wire Line
 	4350 2650 4450 2650
 Wire Wire Line
-	3750 3500 4000 3500
-Wire Wire Line
-	4000 3500 4000 3650
-Connection ~ 4350 3650
-Wire Wire Line
 	3750 2900 4150 2900
 Wire Wire Line
 	4150 2900 4150 2750
@@ -388,9 +383,9 @@ Connection ~ 4350 4350
 Text Label 1700 4350 0    60   ~ 0
 RX_BIAS
 Wire Wire Line
-	6050 3500 6050 3350
+	6050 3350 6050 3500
 Wire Wire Line
-	6050 3350 4150 3350
+	4150 3350 6050 3350
 Connection ~ 5800 3350
 Wire Wire Line
 	4150 3350 4150 4350
@@ -527,11 +522,16 @@ F 3 "" H 3850 3900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3850 3500 3850 3750
-Connection ~ 3850 3500
-Wire Wire Line
 	3850 4050 3850 4350
 Connection ~ 3850 4350
 Text Notes 8150 4250 0    60   ~ 0
 R605 and R606:\n10k and 100pF\nfor more gain
+Connection ~ 4350 3650
+Wire Wire Line
+	4000 3500 4000 3650
+Wire Wire Line
+	3750 3500 4000 3500
+Wire Wire Line
+	3850 3750 3850 3400
+Connection ~ 3850 3400
 $EndSCHEMATC
