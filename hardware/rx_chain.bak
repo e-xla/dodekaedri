@@ -383,9 +383,9 @@ Connection ~ 4350 4350
 Text Label 1700 4350 0    60   ~ 0
 RX_BIAS
 Wire Wire Line
-	6050 3350 6050 3500
+	6050 3500 6050 3350
 Wire Wire Line
-	4150 3350 6050 3350
+	6050 3350 4150 3350
 Connection ~ 5800 3350
 Wire Wire Line
 	4150 3350 4150 4350
