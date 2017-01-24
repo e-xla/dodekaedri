@@ -2,8 +2,9 @@ CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 
 # Download standard peripheral library from http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32065.html
-# and write its path here
-STDPERIPH=$(HOME)/Downloads/STM32F4xx_DSP_StdPeriph_Lib_V1.7.1
+# and append its path to your environment by name STDPERIPH
+#STDPERIPH=$(HOME)/Downloads/STM32F4xx_DSP_StdPeriph_Lib_V1.7.1
+
 
 DRIVER=$(STDPERIPH)/Libraries/STM32F4xx_StdPeriph_Driver
 DSP_LIB=$(STDPERIPH)/Libraries/CMSIS/DSP_Lib/Source
