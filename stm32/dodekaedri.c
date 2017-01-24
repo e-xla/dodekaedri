@@ -96,6 +96,8 @@ int main() {
 
 	// reinitialize UART for new clock frequency
 	uart_init();
+	//if hardware i2c, reinitialize here!!!
+	//i2c_init();
 	print("System clock switched\r\n");
 
 	c = 0;
