@@ -2,3 +2,4 @@
 *.elf
 *.bin
 dsp_assembled.s
+*.zip
