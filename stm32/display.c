@@ -5,16 +5,21 @@
 #include "display.h"
 
 #define TFT_SPI SPI1
-#define TFT_CS_GPIO GPIOB
-#define TFT_CS_Pin GPIO_Pin_6
+#define TFT_CS_GPIO GPIOA
+#define TFT_CS_Pin GPIO_Pin_4
+#define TFT_DC_GPIO GPIOC
 #define TFT_DC_Pin GPIO_Pin_4
+
+// backlight
+#define TFT_BL_GPIO GPIOB
+#define TFT_BL_Pin GPIO_Pin_0
 
 void tft_send(uint8_t *bytes, int n, int dc) {
 	int i;
 	if(dc) // data
-		TFT_CS_GPIO->ODR |= TFT_DC_Pin;
+		TFT_DC_GPIO->ODR |= TFT_DC_Pin;
 	else // command
-		TFT_CS_GPIO->ODR &= ~TFT_DC_Pin;
+		TFT_DC_GPIO->ODR &= ~TFT_DC_Pin;
 	TFT_CS_GPIO->ODR &= ~TFT_CS_Pin;
 	for(i = 0; i < n; i++) {
 		while(!SPI_I2S_GetFlagStatus(TFT_SPI, SPI_I2S_FLAG_TXE));
@@ -39,7 +44,7 @@ void writedata(uint8_t v) {
 
 void delay(int ms) {
 	// some delay
-	return; // is the delay necessary?
+	//return; // is the delay necessary?
 	int i, j;
 	for(i = 0; i < ms; i++) {
 		for(j = 0; j < 5000; j++) __asm("nop");
@@ -63,13 +68,29 @@ void display_init() {
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
 
-	GPIO_Init(TFT_CS_GPIO, &(GPIO_InitTypeDef) {
-		.GPIO_Pin = TFT_CS_Pin | TFT_DC_Pin,
+	GPIO_Init(TFT_BL_GPIO, &(GPIO_InitTypeDef) {
+		.GPIO_Pin = TFT_BL_Pin,
 		.GPIO_Mode = GPIO_Mode_OUT,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_OType = GPIO_OType_PP,
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	});
+
+	GPIO_Init(TFT_CS_GPIO, &(GPIO_InitTypeDef) {
+		.GPIO_Pin = TFT_CS_Pin,
+		.GPIO_Mode = GPIO_Mode_OUT,
+		.GPIO_Speed = GPIO_Speed_50MHz,
+		.GPIO_OType = GPIO_OType_PP,
+		.GPIO_PuPd = GPIO_PuPd_NOPULL
+	});
+	GPIO_Init(TFT_DC_GPIO, &(GPIO_InitTypeDef) {
+		.GPIO_Pin = TFT_DC_Pin,
+		.GPIO_Mode = GPIO_Mode_OUT,
+		.GPIO_Speed = GPIO_Speed_50MHz,
+		.GPIO_OType = GPIO_OType_PP,
+		.GPIO_PuPd = GPIO_PuPd_NOPULL
+	});
+
 
 	SPI_Init(SPI1, &(SPI_InitTypeDef) {
 		.SPI_Direction = SPI_Direction_1Line_Tx,
@@ -88,5 +109,6 @@ void display_init() {
 	Adafruit_ST7735_commandList(Rcmd1);
 	Adafruit_ST7735_commandList(Rcmd2red);
 	Adafruit_ST7735_commandList(Rcmd3);
+	TFT_BL_GPIO->ODR |= TFT_BL_Pin; // turn on backlight
 }
 

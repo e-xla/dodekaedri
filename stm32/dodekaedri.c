@@ -33,7 +33,7 @@ void assert_failed(uint8_t *file, uint32_t line) {
 
 
 int main() {
-	int c;
+	//int c;
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
@@ -48,11 +48,11 @@ int main() {
 
 	uart_init();
 
-	i2c_init();
-	synth_init();
+	/*i2c_init();
+	synth_init();*/
 
 	display_init();
-
+#if 0
 	// Main PLL and I2S PLL initialization
 	RCC_PLLI2SCmd(DISABLE); // PLLI2SConfig should be called with PLLI2S disabled
 
@@ -116,7 +116,7 @@ int main() {
 	// Initialize I2S and audio DAC/ADC
 	audio_init_converters();
 	audio_init_bus();
-
+#endif
 	int t;
 	for(t=0;;t++) {
 		writecommand(0x2A); // column address set
