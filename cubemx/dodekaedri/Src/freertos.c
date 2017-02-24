@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
-  * File Name          : main.h
-  * Description        : This file contains the common defines of the application
+  * File Name          : freertos.c
+  * Description        : Code for freertos applications
   ******************************************************************************
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
@@ -40,62 +40,31 @@
   *
   ******************************************************************************
   */
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
-  /* Includes ------------------------------------------------------------------*/
 
-/* USER CODE BEGIN Includes */
+/* Includes ------------------------------------------------------------------*/
+#include "FreeRTOS.h"
+#include "task.h"
+
+/* USER CODE BEGIN Includes */     
 
 /* USER CODE END Includes */
 
-/* Private define ------------------------------------------------------------*/
+/* Variables -----------------------------------------------------------------*/
 
-#define SWR_ADC_A_Pin GPIO_PIN_0
-#define SWR_ADC_A_GPIO_Port GPIOC
-#define SWR_ADC_B_Pin GPIO_PIN_1
-#define SWR_ADC_B_GPIO_Port GPIOC
-#define PA_CURR_ADC_Pin GPIO_PIN_2
-#define PA_CURR_ADC_GPIO_Port GPIOC
-#define VIN_ADC_Pin GPIO_PIN_3
-#define VIN_ADC_GPIO_Port GPIOC
-#define PTT_IN_Pin GPIO_PIN_0
-#define PTT_IN_GPIO_Port GPIOA
-#define TX_RX_Pin GPIO_PIN_1
-#define TX_RX_GPIO_Port GPIOA
-#define TFT_DC_Pin GPIO_PIN_4
-#define TFT_DC_GPIO_Port GPIOC
-#define SPI1_SD_CS_Pin GPIO_PIN_5
-#define SPI1_SD_CS_GPIO_Port GPIOC
-#define TFT_BL_Pin GPIO_PIN_0
-#define TFT_BL_GPIO_Port GPIOB
-#define PA_BIAS_Pin GPIO_PIN_1
-#define PA_BIAS_GPIO_Port GPIOB
-#define UI_SW_OUT3_Pin GPIO_PIN_8
-#define UI_SW_OUT3_GPIO_Port GPIOC
-#define UI_SW_OUT2_Pin GPIO_PIN_9
-#define UI_SW_OUT2_GPIO_Port GPIOC
-#define UI_SW_OUT1_Pin GPIO_PIN_8
-#define UI_SW_OUT1_GPIO_Port GPIOA
-#define UI_SW_GRID1_Pin GPIO_PIN_4
-#define UI_SW_GRID1_GPIO_Port GPIOB
-#define UI_SW_GRID2_Pin GPIO_PIN_5
-#define UI_SW_GRID2_GPIO_Port GPIOB
-#define UI_SW_GRID3_Pin GPIO_PIN_6
-#define UI_SW_GRID3_GPIO_Port GPIOB
-#define UI_SW_GRID4_Pin GPIO_PIN_7
-#define UI_SW_GRID4_GPIO_Port GPIOB
-/* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Variables */
 
-/* USER CODE END Private defines */
+/* USER CODE END Variables */
 
-/**
-  * @}
-  */ 
+/* Function prototypes -------------------------------------------------------*/
 
-/**
-  * @}
-*/ 
+/* USER CODE BEGIN FunctionPrototypes */
 
-#endif /* __MAIN_H */
+/* USER CODE END FunctionPrototypes */
+
+/* Hook prototypes */
+
+/* USER CODE BEGIN Application */
+     
+/* USER CODE END Application */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

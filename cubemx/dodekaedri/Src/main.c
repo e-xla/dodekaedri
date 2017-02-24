@@ -4,35 +4,46 @@
   * Description        : Main program body
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * All rights reserved.
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
+  * Redistribution and use in source and binary forms, with or without 
+  * modification, are permitted, provided that the following conditions are met:
   *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * 1. Redistribution of source code must retain the above copyright notice, 
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other 
+  *    contributors to this software may be used to endorse or promote products 
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this 
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under 
+  *    this license is void and will automatically terminate your rights under 
+  *    this license. 
+  *
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -48,6 +59,9 @@ SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim3;
 
+osThreadId defaultTaskHandle;
+osThreadId ui_taskHandle;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -62,6 +76,8 @@ static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_I2S2_Init(void);
 static void MX_I2S3_Init(void);
+void StartDefaultTask(void const * argument);
+void start_ui_task(void const * argument);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -101,6 +117,41 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* Create the thread(s) */
+  /* definition and creation of defaultTask */
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of ui_task */
+  osThreadDef(ui_task, start_ui_task, osPriorityBelowNormal, 0, 128);
+  ui_taskHandle = osThreadCreate(osThread(ui_task), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+ 
+
+  /* Start scheduler */
+  osKernelStart();
+  
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -177,7 +228,7 @@ void SystemClock_Config(void)
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
 /* ADC1 init function */
@@ -343,7 +394,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, TX_RX_Pin|UI_SW_OUT1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, TFT_DC_Pin|UI_SW_OUT3_Pin|UI_SW_OUT2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, TFT_DC_Pin|SPI1_SD_CS_Pin|UI_SW_OUT3_Pin|UI_SW_OUT2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(TFT_BL_GPIO_Port, TFT_BL_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PTT_IN_Pin */
   GPIO_InitStruct.Pin = PTT_IN_Pin;
@@ -358,12 +412,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : TFT_DC_Pin UI_SW_OUT3_Pin UI_SW_OUT2_Pin */
-  GPIO_InitStruct.Pin = TFT_DC_Pin|UI_SW_OUT3_Pin|UI_SW_OUT2_Pin;
+  /*Configure GPIO pins : TFT_DC_Pin SPI1_SD_CS_Pin UI_SW_OUT3_Pin UI_SW_OUT2_Pin */
+  GPIO_InitStruct.Pin = TFT_DC_Pin|SPI1_SD_CS_Pin|UI_SW_OUT3_Pin|UI_SW_OUT2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : TFT_BL_Pin */
+  GPIO_InitStruct.Pin = TFT_BL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(TFT_BL_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA9 PA10 */
   GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10;
@@ -392,6 +453,35 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* StartDefaultTask function */
+void StartDefaultTask(void const * argument)
+{
+
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */ 
+}
+
+/* start_ui_task function */
+void start_ui_task(void const * argument)
+{
+  /* USER CODE BEGIN start_ui_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    // blink backlight as first test
+    HAL_GPIO_WritePin(TFT_BL_GPIO_Port, TFT_BL_Pin, GPIO_PIN_SET);
+    osDelay(100);
+    HAL_GPIO_WritePin(TFT_BL_GPIO_Port, TFT_BL_Pin, GPIO_PIN_RESET);
+    osDelay(100);
+  }
+  /* USER CODE END start_ui_task */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

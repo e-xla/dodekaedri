@@ -25,9 +25,19 @@ BUILD_DIR = build
 # source
 ######################################
 C_SOURCES = \
+  Middlewares/Third_Party/FreeRTOS/Source/list.c \
+  Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
+  Middlewares/Third_Party/FreeRTOS/Source/timers.c \
+  Middlewares/Third_Party/FreeRTOS/Source/croutine.c \
+  Middlewares/Third_Party/FreeRTOS/Source/queue.c \
+  Middlewares/Third_Party/FreeRTOS/Source/event_groups.c \
+  Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c \
+  Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
+  Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
   Src/system_stm32f4xx.c \
   Src/main.c \
   Src/stm32f4xx_it.c \
+  Src/freertos.c \
   Src/stm32f4xx_hal_msp.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
@@ -70,7 +80,10 @@ AS_DEFS =
 C_DEFS = -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F401xE -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F401xE
 # includes for gcc
 AS_INCLUDES =
-C_INCLUDES = -IInc
+C_INCLUDES = -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
+C_INCLUDES += -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+C_INCLUDES += -IMiddlewares/Third_Party/FreeRTOS/Source/include
+C_INCLUDES += -IInc
 C_INCLUDES += -IDrivers/CMSIS/Device/ST/STM32F4xx/Include
 C_INCLUDES += -IDrivers/CMSIS/Include
 C_INCLUDES += -IDrivers/STM32F4xx_HAL_Driver/Inc
@@ -92,8 +105,6 @@ LDSCRIPT = STM32F401RDTx_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys
 LIBDIR =
-#LDFLAGS = -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
-# -specs=nano.specs didn't work
 LDFLAGS = -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
