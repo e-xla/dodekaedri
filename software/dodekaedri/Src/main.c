@@ -77,7 +77,7 @@ static void MX_TIM3_Init(void);
 static void MX_I2S2_Init(void);
 static void MX_I2S3_Init(void);
 void StartDefaultTask(void const * argument);
-void start_ui_task(void const * argument);
+extern void start_ui_task(void const * argument);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -465,22 +465,6 @@ void StartDefaultTask(void const * argument)
     osDelay(1);
   }
   /* USER CODE END 5 */ 
-}
-
-/* start_ui_task function */
-void start_ui_task(void const * argument)
-{
-  /* USER CODE BEGIN start_ui_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    // blink backlight as first test
-    HAL_GPIO_WritePin(TFT_BL_GPIO_Port, TFT_BL_Pin, GPIO_PIN_SET);
-    osDelay(100);
-    HAL_GPIO_WritePin(TFT_BL_GPIO_Port, TFT_BL_Pin, GPIO_PIN_RESET);
-    osDelay(100);
-  }
-  /* USER CODE END start_ui_task */
 }
 
 /**

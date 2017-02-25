@@ -1,3 +1,10 @@
+Here is the first attempt at writing software for the first prototype.
+Go to ../software/ for the new version.
+The code is kept here until working parts are moved to the new version.
+
+
+-------------------------------------------------
+
 This directory contains software running on the STM32F401RE microcontroller
 in the transceiver.
 

@@ -37,6 +37,7 @@ C_SOURCES = \
   Src/system_stm32f4xx.c \
   Src/main.c \
   Src/stm32f4xx_it.c \
+  Src/dodekaedri_ui.c \
   Src/freertos.c \
   Src/stm32f4xx_hal_msp.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
