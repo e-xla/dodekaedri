@@ -52,6 +52,8 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
+I2C_HandleTypeDef hi2c1;
+
 I2S_HandleTypeDef hi2s2;
 I2S_HandleTypeDef hi2s3;
 
@@ -59,8 +61,13 @@ SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim3;
 
+UART_HandleTypeDef huart1;
+
 osThreadId defaultTaskHandle;
 osThreadId ui_taskHandle;
+osThreadId synth_taskHandle;
+osThreadId dsp_taskHandle;
+osMutexId i2c_mutexHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -76,8 +83,12 @@ static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_I2S2_Init(void);
 static void MX_I2S3_Init(void);
+static void MX_I2C1_Init(void);
+static void MX_USART1_UART_Init(void);
 void StartDefaultTask(void const * argument);
 extern void start_ui_task(void const * argument);
+extern void start_synth_task(void const * argument);
+extern void start_dsp_task(void const * argument);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -113,10 +124,18 @@ int main(void)
   MX_TIM3_Init();
   MX_I2S2_Init();
   MX_I2S3_Init();
+  MX_I2C1_Init();
+  MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
+  HAL_UART_Transmit(&huart1, "MCU peripherals initialized. Starting kernel\r\n", 47, 100);
 
   /* USER CODE END 2 */
+
+  /* Create the mutex(es) */
+  /* definition and creation of i2c_mutex */
+  osMutexDef(i2c_mutex);
+  i2c_mutexHandle = osMutexCreate(osMutex(i2c_mutex));
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -136,8 +155,16 @@ int main(void)
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of ui_task */
-  osThreadDef(ui_task, start_ui_task, osPriorityBelowNormal, 0, 128);
+  osThreadDef(ui_task, start_ui_task, osPriorityNormal, 0, 128);
   ui_taskHandle = osThreadCreate(osThread(ui_task), NULL);
+
+  /* definition and creation of synth_task */
+  osThreadDef(synth_task, start_synth_task, osPriorityNormal, 0, 128);
+  synth_taskHandle = osThreadCreate(osThread(synth_task), NULL);
+
+  /* definition and creation of dsp_task */
+  osThreadDef(dsp_task, start_dsp_task, osPriorityAboveNormal, 0, 128);
+  dsp_taskHandle = osThreadCreate(osThread(dsp_task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -268,6 +295,26 @@ static void MX_ADC1_Init(void)
 
 }
 
+/* I2C1 init function */
+static void MX_I2C1_Init(void)
+{
+
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
 /* I2S2 init function */
 static void MX_I2S2_Init(void)
 {
@@ -318,7 +365,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
@@ -368,16 +415,31 @@ static void MX_TIM3_Init(void)
 
 }
 
+/* USART1 init function */
+static void MX_USART1_UART_Init(void)
+{
+
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
 /** Configure pins as 
         * Analog 
         * Input 
         * Output
         * EVENT_OUT
         * EXTI
-     PA9   ------> USART1_TX
-     PA10   ------> USART1_RX
-     PB8   ------> I2C1_SCL
-     PB9   ------> I2C1_SDA
 */
 static void MX_GPIO_Init(void)
 {
@@ -391,7 +453,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, TX_RX_Pin|UI_SW_OUT1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, TX_RX_Pin|TFT_CS_Pin|UI_SW_OUT1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, TFT_DC_Pin|SPI1_SD_CS_Pin|UI_SW_OUT3_Pin|UI_SW_OUT2_Pin, GPIO_PIN_RESET);
@@ -405,8 +467,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(PTT_IN_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : TX_RX_Pin UI_SW_OUT1_Pin */
-  GPIO_InitStruct.Pin = TX_RX_Pin|UI_SW_OUT1_Pin;
+  /*Configure GPIO pins : TX_RX_Pin TFT_CS_Pin UI_SW_OUT1_Pin */
+  GPIO_InitStruct.Pin = TX_RX_Pin|TFT_CS_Pin|UI_SW_OUT1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -426,26 +488,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(TFT_BL_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA9 PA10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
   /*Configure GPIO pins : UI_SW_GRID1_Pin UI_SW_GRID2_Pin UI_SW_GRID3_Pin UI_SW_GRID4_Pin */
   GPIO_InitStruct.Pin = UI_SW_GRID1_Pin|UI_SW_GRID2_Pin|UI_SW_GRID3_Pin|UI_SW_GRID4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PB8 PB9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }

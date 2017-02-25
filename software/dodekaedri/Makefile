@@ -38,14 +38,20 @@ C_SOURCES = \
   Src/main.c \
   Src/stm32f4xx_it.c \
   Src/dodekaedri_ui.c \
+  Src/dodekaedri_i2c.c \
+  Src/dodekaedri_synth.c \
   Src/freertos.c \
+  Src/dodekaedri_dsp.c \
   Src/stm32f4xx_hal_msp.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c \
+  Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
+  Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
+  Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \

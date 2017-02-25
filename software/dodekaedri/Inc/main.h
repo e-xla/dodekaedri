@@ -63,6 +63,8 @@
 #define PTT_IN_GPIO_Port GPIOA
 #define TX_RX_Pin GPIO_PIN_1
 #define TX_RX_GPIO_Port GPIOA
+#define TFT_CS_Pin GPIO_PIN_4
+#define TFT_CS_GPIO_Port GPIOA
 #define TFT_DC_Pin GPIO_PIN_4
 #define TFT_DC_GPIO_Port GPIOC
 #define SPI1_SD_CS_Pin GPIO_PIN_5
