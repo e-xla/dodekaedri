@@ -8,7 +8,7 @@ void writereg(uint8_t addr, uint8_t reg, uint8_t v);
 int32_t readreg(uint8_t addr, uint8_t reg);
 
 #define _BITS(lowest, v, last, first) ((((v) & ((2<<((last)))-1)) >> first) << lowest)
-const uint8_t addr_synth = 0x60; // SI5351 synthesizer I2C address
+const uint8_t addr_synth = 0x60<<1; // SI5351 synthesizer I2C address
 
 struct synth_init_t {
 	uint32_t msna_p1:20;
@@ -175,13 +175,15 @@ char text[TEXTL];
 
 void start_synth_task(void const * argument) {
 	int r, n;
+	int first=1;
 	for(;;) {
 		r = readreg(addr_synth, 0);
 		n = snprintf(text, TEXTL, "SI5351 status: %04x\r\n", r);
 		HAL_UART_Transmit(&huart1, (uint8_t*)text, n, 100);
-		
-		synth_init();
-		osDelay(50);
+
+		if(first) synth_init();
+		first = 0;
+		osDelay(1000);
 	}
 }
 
