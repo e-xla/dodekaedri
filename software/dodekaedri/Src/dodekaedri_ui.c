@@ -29,7 +29,8 @@ static void delay(int ms) {
 
 #include "tft.h"
 
-uint8_t data[256];
+extern uint16_t audiobuf[128];
+
 void start_ui_task(void const * argument)
 {
 	int t;
@@ -58,13 +59,7 @@ void start_ui_task(void const * argument)
 
 		int y;
 		for(y = 0; y < 160; y++) {
-			int x;
-			uint8_t *datap = data;
-			for(x = 0; x < 128; x++) {
-				*datap++ = (x + t) ^ y;
-				*datap++ = t ^ (y + t);
-			}
-			tft_send(data, 256, 1);
+			tft_send((uint8_t*)audiobuf, 256, 1);
 		}
 	}
 }

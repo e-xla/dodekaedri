@@ -57,7 +57,13 @@ void start_dsp_task(void const * argument)
 		audiodata[i] = 12345*i;
 	}
 	audio_init_converters();
-	HAL_I2S_Transmit(&hi2s2, audiodata, 100, 1000);
+	//HAL_I2S_Transmit(&hi2s2, audiodata, 100, 1000);
+	/*__HAL_I2S_ENABLE_IT(&hi2s2, I2S_IT_TXE);
+	__HAL_I2S_ENABLE(&hi2s2);
+	HAL_NVIC_EnableIRQ(SPI2_IRQn);*/
+	HAL_I2S_Transmit_IT(&hi2s2, audiodata, 100);
+	SPI2->DR = 1234;
+	SPI2->DR = 5678;
 	for(i=0;;i++) {
 		osDelay(1000);
 		/*HAL_I2S_Transmit(&hi2s2, audiodata, 100, 1000);
@@ -95,6 +101,12 @@ int firidx = 0;
 int sawtooth = 0;
 int16_t rxsamp[2], txsamp[2];
 uint32_t agc_filter = 0;
+
+uint16_t testi=0;
+
+int16_t audiobuf[128];
+int audiobufp = 0;
+
 void SPI2_IRQHandler() {
 	//int64_t outr = 0, outi = 0, out;
 	/* Handler for empty TX buffer in SPI2:
@@ -108,6 +120,9 @@ void SPI2_IRQHandler() {
 		rxsamp[0] = I2S2ext->DR;
 		SPI2->DR = txsamp[1];
 		SPI3->DR = txsamp[1];
+		audiobuf[audiobufp] = rxsamp[0];
+		audiobufp++;
+		if(audiobufp >= 128) audiobufp = 0;
 	} else {
 		/* Ready to put "left" channel in TX buffer,
 		   i.e. first part of the next sample to transmit.
@@ -143,6 +158,8 @@ void SPI2_IRQHandler() {
 
 		// bit shift for signed values is undefined so write it as division
 		int32_t out = ((int64_t)o * agc_gain) / 4294967296LL;
+		
+		out += ++testi;
 
 		if(out > 0x7FFF) out = 0x7FFF;
 		else if(out < -0x8000) out = -0x8000;
